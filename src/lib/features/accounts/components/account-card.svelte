@@ -1,9 +1,9 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import { formatCurrency } from '$lib/utils/currency';
-	import type { accounts } from '$lib/server/db/schema';
+	import type { Account } from '../types';
 
-	let { account }: { account: typeof accounts.$inferSelect } = $props();
+	let { account }: { account: Account } = $props();
 </script>
 
 <Card.Root>

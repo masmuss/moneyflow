@@ -13,6 +13,8 @@ import {
 
 export const transactionTypeEnum = pgEnum('transaction_type', ['income', 'expense']);
 export const categoryTypeEnum = pgEnum('category_type', ['income', 'expense']);
+export const accountTypeEnum = pgEnum('account_type', ['cash', 'bank', 'credit_card', 'savings']);
+export const currencyEnum = pgEnum('currency', ['IDR', 'USD', 'EUR', 'SGD', 'MYR']);
 
 export const categories = pgTable('categories', {
 	id: uuid('id')
@@ -89,9 +91,9 @@ export const accounts = pgTable('accounts', {
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID()),
 	name: text('name').notNull(),
-	type: text('type').notNull(),
+	type: accountTypeEnum('type').notNull(),
 	balance: bigint('balance', { mode: 'number' }).default(0),
-	currency: text('currency').default('IDR').notNull(),
+	currency: currencyEnum('currency').default('IDR').notNull(),
 	userId: text('user_id').notNull()
 });
 

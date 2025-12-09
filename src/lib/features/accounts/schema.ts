@@ -3,6 +3,21 @@ import { z } from 'zod';
 export const ACCOUNT_TYPES = ['cash', 'bank', 'credit_card', 'savings'] as const;
 export const CURRENCY_CODES = ['IDR', 'USD', 'EUR', 'SGD', 'MYR'] as const;
 
+export const ACCOUNT_TYPE_LABELS: Record<(typeof ACCOUNT_TYPES)[number], string> = {
+	cash: 'Cash',
+	bank: 'Bank Account',
+	credit_card: 'Credit Card',
+	savings: 'Savings Account'
+};
+
+export const CURRENCY_LABELS: Record<(typeof CURRENCY_CODES)[number], string> = {
+	IDR: '🇮🇩 IDR - Indonesian Rupiah',
+	USD: '🇺🇸 USD - US Dollar',
+	EUR: '🇪🇺 EUR - Euro',
+	SGD: '🇸🇬 SGD - Singapore Dollar',
+	MYR: '🇲🇾 MYR - Malaysian Ringgit'
+};
+
 export const createAccountSchema = z.object({
 	name: z
 		.string()

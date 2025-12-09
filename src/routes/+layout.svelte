@@ -7,6 +7,7 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { page } from '$app/state';
 	import { sidebarData } from '$lib/config';
+	import { Toaster } from '@/components/ui/sonner';
 
 	let { children } = $props();
 
@@ -39,6 +40,7 @@
 			</div>
 		</header>
 		<div class="flex flex-1 flex-col gap-4 p-4 pt-0">
+			<Toaster />
 			{@render children()}
 		</div>
 	</Sidebar.Inset>

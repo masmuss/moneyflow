@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations } from 'drizzle-orm';
 import {
 	bigint,
 	boolean,
@@ -8,96 +8,93 @@ import {
 	pgTable,
 	text,
 	timestamp,
-	uuid,
-} from "drizzle-orm/pg-core";
+	uuid
+} from 'drizzle-orm/pg-core';
 
-export const transactionTypeEnum = pgEnum("transaction_type", [
-	"income",
-	"expense",
-]);
-export const categoryTypeEnum = pgEnum("category_type", ["income", "expense"]);
+export const transactionTypeEnum = pgEnum('transaction_type', ['income', 'expense']);
+export const categoryTypeEnum = pgEnum('category_type', ['income', 'expense']);
 
-export const categories = pgTable("categories", {
-	id: uuid("id")
+export const categories = pgTable('categories', {
+	id: uuid('id')
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID()),
-	name: text("name").notNull(),
-	type: categoryTypeEnum("type").notNull(),
-	color: text("color").default("#6366f1").notNull(),
-	icon: text("icon"),
-	isActive: boolean("is_active").default(true).notNull(),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	name: text('name').notNull(),
+	type: categoryTypeEnum('type').notNull(),
+	color: text('color').default('#6366f1').notNull(),
+	icon: text('icon'),
+	isActive: boolean('is_active').default(true).notNull(),
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at').defaultNow()
 });
 
 export const categoriesRelations = relations(categories, ({ many }) => ({
-	transactions: many(transactions),
+	transactions: many(transactions)
 }));
 
 export const transactions = pgTable(
-	"transactions",
+	'transactions',
 	{
-		id: uuid("id")
+		id: uuid('id')
 			.primaryKey()
 			.$defaultFn(() => crypto.randomUUID()),
-		type: transactionTypeEnum("type").notNull(),
-		categoryId: uuid("category_id")
-			.references(() => categories.id, { onDelete: "set null" })
+		type: transactionTypeEnum('type').notNull(),
+		categoryId: uuid('category_id')
+			.references(() => categories.id, { onDelete: 'set null' })
 			.notNull(),
-		accountId: uuid("account_id")
-			.references(() => accounts.id, { onDelete: "cascade" })
+		accountId: uuid('account_id')
+			.references(() => accounts.id, { onDelete: 'cascade' })
 			.notNull(),
-		amount: bigint("amount", { mode: "number" }).notNull(),
-		description: text("description").notNull(),
-		date: date("date").notNull(),
-		createdAt: timestamp("created_at").defaultNow(),
-		updatedAt: timestamp("updated_at").defaultNow(),
+		amount: bigint('amount', { mode: 'number' }).notNull(),
+		description: text('description').notNull(),
+		date: date('date').notNull(),
+		createdAt: timestamp('created_at').defaultNow(),
+		updatedAt: timestamp('updated_at').defaultNow()
 	},
-	(table) => [index("transactions_category_id_idx").on(table.categoryId)],
+	(table) => [index('transactions_category_id_idx').on(table.categoryId)]
 );
 
 export const transactionsRelations = relations(transactions, ({ one }) => ({
 	category: one(categories, {
 		fields: [transactions.categoryId],
-		references: [categories.id],
+		references: [categories.id]
 	}),
 	account: one(accounts, {
 		fields: [transactions.accountId],
-		references: [accounts.id],
-	}),
+		references: [accounts.id]
+	})
 }));
 
-export const budgets = pgTable("budgets", {
-	id: uuid("id")
+export const budgets = pgTable('budgets', {
+	id: uuid('id')
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID()),
-	categoryId: uuid("category_id").references(() => categories.id),
+	categoryId: uuid('category_id').references(() => categories.id),
 	// ISO 8583: Amount in minor units
-	amount: bigint("amount", { mode: "number" }).notNull(),
-	period: text("period").notNull(),
-	userId: text("user_id").notNull(),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	amount: bigint('amount', { mode: 'number' }).notNull(),
+	period: text('period').notNull(),
+	userId: text('user_id').notNull(),
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at').defaultNow()
 });
 
 export const budgetsRelations = relations(budgets, ({ one }) => ({
 	category: one(categories, {
 		fields: [budgets.categoryId],
-		references: [categories.id],
-	}),
+		references: [categories.id]
+	})
 }));
 
-export const accounts = pgTable("accounts", {
-	id: uuid("id")
+export const accounts = pgTable('accounts', {
+	id: uuid('id')
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID()),
-	name: text("name").notNull(),
-	type: text("type").notNull(),
-	balance: bigint("balance", { mode: "number" }).default(0),
-	currency: text("currency").default("IDR").notNull(),
-	userId: text("user_id").notNull(),
+	name: text('name').notNull(),
+	type: text('type').notNull(),
+	balance: bigint('balance', { mode: 'number' }).default(0),
+	currency: text('currency').default('IDR').notNull(),
+	userId: text('user_id').notNull()
 });
 
 export const accountsRelations = relations(accounts, ({ many }) => ({
-	transactions: many(transactions),
+	transactions: many(transactions)
 }));

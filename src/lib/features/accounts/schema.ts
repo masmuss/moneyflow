@@ -35,3 +35,20 @@ export const createAccountSchema = z.object({
 });
 
 export type CreateAccountSchema = typeof createAccountSchema;
+
+export const updateAccountSchema = z.object({
+	id: z.string().uuid('Invalid account ID'),
+	name: z
+		.string()
+		.min(1, 'Account name is required')
+		.max(100, 'Name must be less than 100 characters'),
+	type: z.enum(ACCOUNT_TYPES, {
+		error: () => ({ message: 'Please select a valid account type' })
+	}),
+	balance: z.coerce.number().int().min(0, 'Balance must be non-negative'),
+	currency: z.enum(CURRENCY_CODES, {
+		error: () => ({ message: 'Please select a valid currency' })
+	})
+});
+
+export type UpdateAccountSchema = typeof updateAccountSchema;

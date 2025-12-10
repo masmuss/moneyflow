@@ -6,45 +6,56 @@
 	import * as Select from '$lib/components/ui/select';
 	import {
 		createAccountSchema,
+		updateAccountSchema,
 		type CreateAccountSchema,
+		type UpdateAccountSchema,
 		ACCOUNT_TYPES,
 		ACCOUNT_TYPE_LABELS,
 		CURRENCY_CODES,
 		CURRENCY_LABELS
 	} from '../schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
-	import { zod4Client } from 'sveltekit-superforms/adapters';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
 	import { formatIDRInput, parseIDRInput } from '$lib/utils/currency';
+	import { untrack } from 'svelte';
+
+	type CreateFormData = SuperValidated<Infer<CreateAccountSchema>>;
+	type UpdateFormData = SuperValidated<Infer<UpdateAccountSchema>>;
 
 	let {
 		form: formData,
+		mode = 'create',
 		onSuccess
 	}: {
-		form: SuperValidated<Infer<CreateAccountSchema>>;
+		form: CreateFormData | UpdateFormData;
+		mode?: 'create' | 'update';
 		onSuccess?: () => void;
 	} = $props();
 
-	const form = $derived(
+	// Create form instance - use untrack to avoid reactive warnings
+	const form = untrack(() =>
 		superForm(formData, {
-			validators: zod4Client(createAccountSchema),
+			validators: mode === 'create' ? zod4(createAccountSchema) : zod4(updateAccountSchema),
 			onUpdated: ({ form: updatedForm }) => {
 				if (updatedForm.valid) {
-					toast.success('Account created successfully!', {
-						description: `Account "${updatedForm.data.name}" has been created.`,
+					const action = mode === 'create' ? 'created' : 'updated';
+					toast.success(`Account ${action} successfully!`, {
+						description: `Account "${updatedForm.data.name}" has been ${action}.`,
 						duration: 4000
 					});
 					onSuccess?.();
 				} else {
-					toast.error('Failed to create account. Please check the form.');
+					toast.error(`Failed to ${mode} account. Please check the form.`);
 				}
 			}
 		})
 	);
 
-	const { form: data, enhance, delayed } = $derived(form);
+	const { form: data, enhance, delayed } = form;
 
-	let displayBalance = $state(formatIDRInput($data.balance || 0));
+	// Track the display value for balance input
+	let displayBalance = $state(formatIDRInput(untrack(() => formData.data.balance) || 0));
 
 	function handleBalanceInput(e: Event) {
 		const input = e.target as HTMLInputElement;
@@ -54,7 +65,16 @@
 	}
 </script>
 
-<form method="POST" action="?/create" use:enhance class="space-y-4">
+<form
+	method="POST"
+	action={mode === 'create' ? '?/create' : '?/update'}
+	use:enhance
+	class="space-y-4"
+>
+	{#if mode === 'update' && 'id' in $data}
+		<input type="hidden" name="id" value={$data.id} />
+	{/if}
+
 	<Form.Field {form} name="name">
 		<Form.Control>
 			{#snippet children({ props })}
@@ -133,6 +153,12 @@
 	</Form.Field>
 
 	<Button type="submit" class="w-full" disabled={$delayed}>
-		{$delayed ? 'Creating...' : 'Create Account'}
+		{$delayed
+			? mode === 'create'
+				? 'Creating...'
+				: 'Updating...'
+			: mode === 'create'
+				? 'Create Account'
+				: 'Update Account'}
 	</Button>
 </form>

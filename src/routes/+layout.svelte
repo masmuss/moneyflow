@@ -8,6 +8,7 @@
 	import { page } from '$app/state';
 	import { sidebarData } from '$lib/config';
 	import { Toaster } from '@/components/ui/sonner';
+	import { ModeWatcher } from 'mode-watcher';
 
 	let { children } = $props();
 
@@ -20,6 +21,8 @@
 	<title>{breadcrumbTitle} - Finance App</title>
 	<link rel="icon" href={favicon} />
 </svelte:head>
+
+<ModeWatcher />
 
 <Sidebar.Provider>
 	<AppSidebar variant="inset" collapsible="offcanvas" />

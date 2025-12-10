@@ -9,6 +9,10 @@
 	import CreditCardIcon from '@lucide/svelte/icons/credit-card';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import SparklesIcon from '@lucide/svelte/icons/sparkles';
+	import SunIcon from '@lucide/svelte/icons/sun';
+	import MoonIcon from '@lucide/svelte/icons/moon';
+	import MonitorIcon from '@lucide/svelte/icons/monitor';
+	import { setMode, resetMode } from 'mode-watcher';
 	import type { User } from '$lib/types';
 
 	let { user }: { user: User } = $props();
@@ -84,6 +88,28 @@
 						Notifications
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Sub>
+					<DropdownMenu.SubTrigger>
+						<SunIcon class="dark:hidden" />
+						<MoonIcon class="hidden dark:block" />
+						Theme
+					</DropdownMenu.SubTrigger>
+					<DropdownMenu.SubContent>
+						<DropdownMenu.Item onclick={() => setMode('light')}>
+							<SunIcon />
+							Light
+						</DropdownMenu.Item>
+						<DropdownMenu.Item onclick={() => setMode('dark')}>
+							<MoonIcon />
+							Dark
+						</DropdownMenu.Item>
+						<DropdownMenu.Item onclick={() => resetMode()}>
+							<MonitorIcon />
+							System
+						</DropdownMenu.Item>
+					</DropdownMenu.SubContent>
+				</DropdownMenu.Sub>
 				<DropdownMenu.Separator />
 				<DropdownMenu.Item>
 					<LogOutIcon />

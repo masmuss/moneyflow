@@ -37,7 +37,7 @@ export const createAccountSchema = z.object({
 export type CreateAccountSchema = typeof createAccountSchema;
 
 export const updateAccountSchema = z.object({
-	id: z.string().uuid('Invalid account ID'),
+	id: z.uuid('Invalid account ID'),
 	name: z
 		.string()
 		.min(1, 'Account name is required')

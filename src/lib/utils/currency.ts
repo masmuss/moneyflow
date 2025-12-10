@@ -31,3 +31,17 @@ export function parseIDRInput(formatted: string): number {
 	const cleaned = formatted.replace(/\D/g, '');
 	return cleaned ? parseInt(cleaned) : 0;
 }
+
+/**
+ * Format number ke format Rupiah untuk display
+ * @param value - Nilai dalam minor units
+ * @returns String formatted dengan prefix Rp (contoh: "Rp 10.000")
+ */
+export function formatIDR(value: number | bigint): string {
+	return new Intl.NumberFormat('id-ID', {
+		style: 'currency',
+		currency: 'IDR',
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 0
+	}).format(Number(value));
+}

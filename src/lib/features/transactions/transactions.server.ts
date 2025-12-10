@@ -1,0 +1,166 @@
+import { db } from '$lib/server/db';
+import { transactions, accounts, categories } from '$lib/server/db/schema';
+import { eq, desc, sql } from 'drizzle-orm';
+import type { CreateTransaction, TransactionWithRelations } from './types';
+
+export async function getTransactions(accountId?: string): Promise<TransactionWithRelations[]> {
+	const query = db
+		.select({
+			id: transactions.id,
+			type: transactions.type,
+			categoryId: transactions.categoryId,
+			accountId: transactions.accountId,
+			amount: transactions.amount,
+			description: transactions.description,
+			date: transactions.date,
+			createdAt: transactions.createdAt,
+			updatedAt: transactions.updatedAt,
+			category: categories,
+			account: accounts
+		})
+		.from(transactions)
+		.leftJoin(categories, eq(transactions.categoryId, categories.id))
+		.innerJoin(accounts, eq(transactions.accountId, accounts.id))
+		.orderBy(desc(transactions.date), desc(transactions.createdAt));
+
+	if (accountId) {
+		return await query.where(eq(transactions.accountId, accountId));
+	}
+
+	return await query;
+}
+
+export async function getTransactionById(id: string): Promise<TransactionWithRelations | null> {
+	const result = await db
+		.select({
+			id: transactions.id,
+			type: transactions.type,
+			categoryId: transactions.categoryId,
+			accountId: transactions.accountId,
+			amount: transactions.amount,
+			description: transactions.description,
+			date: transactions.date,
+			createdAt: transactions.createdAt,
+			updatedAt: transactions.updatedAt,
+			category: categories,
+			account: accounts
+		})
+		.from(transactions)
+		.leftJoin(categories, eq(transactions.categoryId, categories.id))
+		.innerJoin(accounts, eq(transactions.accountId, accounts.id))
+		.where(eq(transactions.id, id))
+		.limit(1);
+
+	return result[0] || null;
+}
+
+export async function createTransaction(data: CreateTransaction) {
+	return await db.transaction(async (tx) => {
+		const [newTransaction] = await tx
+			.insert(transactions)
+			.values({
+				type: data.type,
+				categoryId: data.categoryId,
+				accountId: data.accountId,
+				amount: data.amount,
+				description: data.description,
+				date: data.date
+			})
+			.returning();
+
+		const balanceChange = data.type === 'income' ? data.amount : -data.amount;
+
+		await tx
+			.update(accounts)
+			.set({
+				balance: sql`${accounts.balance} + ${balanceChange}`
+			})
+			.where(eq(accounts.id, data.accountId));
+
+		return newTransaction;
+	});
+}
+
+export async function updateTransaction(id: string, data: Partial<CreateTransaction>) {
+	return await db.transaction(async (tx) => {
+		const [oldTransaction] = await tx
+			.select()
+			.from(transactions)
+			.where(eq(transactions.id, id))
+			.limit(1);
+
+		if (!oldTransaction) {
+			throw new Error('Transaction not found');
+		}
+
+		const oldBalanceChange =
+			oldTransaction.type === 'income' ? -oldTransaction.amount : oldTransaction.amount;
+
+		const newType = data.type || oldTransaction.type;
+		const newAmount = data.amount || oldTransaction.amount;
+		const newBalanceChange = newType === 'income' ? newAmount : -newAmount;
+
+		if (data.accountId && data.accountId !== oldTransaction.accountId) {
+			await tx
+				.update(accounts)
+				.set({
+					balance: sql`${accounts.balance} + ${oldBalanceChange}`
+				})
+				.where(eq(accounts.id, oldTransaction.accountId));
+
+			await tx
+				.update(accounts)
+				.set({
+					balance: sql`${accounts.balance} + ${newBalanceChange}`
+				})
+				.where(eq(accounts.id, data.accountId));
+		} else {
+			const netChange = oldBalanceChange + newBalanceChange;
+			await tx
+				.update(accounts)
+				.set({
+					balance: sql`${accounts.balance} + ${netChange}`
+				})
+				.where(eq(accounts.id, oldTransaction.accountId));
+		}
+
+		const [updatedTransaction] = await tx
+			.update(transactions)
+			.set({
+				...data,
+				updatedAt: new Date()
+			})
+			.where(eq(transactions.id, id))
+			.returning();
+
+		return updatedTransaction;
+	});
+}
+
+export async function deleteTransaction(id: string) {
+	return await db.transaction(async (tx) => {
+		const [transaction] = await tx
+			.select()
+			.from(transactions)
+			.where(eq(transactions.id, id))
+			.limit(1);
+
+		if (!transaction) {
+			throw new Error('Transaction not found');
+		}
+
+		// Reverse the transaction effect on account balance
+		const balanceChange = transaction.type === 'income' ? -transaction.amount : transaction.amount;
+
+		await tx
+			.update(accounts)
+			.set({
+				balance: sql`${accounts.balance} + ${balanceChange}`
+			})
+			.where(eq(accounts.id, transaction.accountId));
+
+		const [deleted] = await tx.delete(transactions).where(eq(transactions.id, id)).returning();
+
+		return deleted;
+	});
+}

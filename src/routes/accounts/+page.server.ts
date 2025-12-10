@@ -14,7 +14,7 @@ import { createAccountSchema, updateAccountSchema } from '$lib/features/accounts
 export const load: PageServerLoad = async () => {
 	const userId = getCurrentUserId();
 	const accounts = await getAccounts(userId);
-	const form = await superValidate(zod4(createAccountSchema));
+	const form = await superValidate(zod4(createAccountSchema), { errors: false });
 	return {
 		accounts,
 		form

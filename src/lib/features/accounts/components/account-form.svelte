@@ -33,7 +33,6 @@
 		onSuccess?: () => void;
 	} = $props();
 
-	// Create form instance - use untrack to avoid reactive warnings
 	const form = untrack(() =>
 		superForm(formData, {
 			validators: mode === 'create' ? zod4(createAccountSchema) : zod4(updateAccountSchema),

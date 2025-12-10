@@ -66,18 +66,26 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
 	})
 }));
 
-export const budgets = pgTable('budgets', {
-	id: uuid('id')
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
-	categoryId: uuid('category_id').references(() => categories.id),
-	// ISO 8583: Amount in minor units
-	amount: bigint('amount', { mode: 'number' }).notNull(),
-	period: text('period').notNull(),
-	userId: text('user_id').notNull(),
-	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at').defaultNow()
-});
+export const budgets = pgTable(
+	'budgets',
+	{
+		id: uuid('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		userId: text('user_id').notNull(),
+		categoryId: uuid('category_id')
+			.references(() => categories.id, { onDelete: 'cascade' })
+			.notNull(),
+		amount: bigint('amount', { mode: 'number' }).notNull(),
+		month: text('month').notNull(),
+		createdAt: timestamp('created_at').defaultNow(),
+		updatedAt: timestamp('updated_at').defaultNow()
+	},
+	(table) => [
+		index('budgets_user_month_idx').on(table.userId, table.month),
+		index('budgets_category_idx').on(table.categoryId)
+	]
+);
 
 export const budgetsRelations = relations(budgets, ({ one }) => ({
 	category: one(categories, {

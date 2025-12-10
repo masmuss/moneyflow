@@ -3,6 +3,7 @@ import CreditCard from '@lucide/svelte/icons/credit-card';
 import PiggyBank from '@lucide/svelte/icons/piggy-bank';
 import ChartPie from '@lucide/svelte/icons/chart-pie';
 import Wallet from '@lucide/svelte/icons/wallet';
+import Tags from '@lucide/svelte/icons/tags';
 import type { SidebarData } from '$lib/types';
 
 export const sidebarData: SidebarData = {
@@ -20,6 +21,11 @@ export const sidebarData: SidebarData = {
 			title: 'Accounts',
 			url: '/accounts',
 			icon: Wallet
+		},
+		{
+			title: 'Categories',
+			url: '/categories',
+			icon: Tags
 		},
 		{
 			title: 'Transactions',

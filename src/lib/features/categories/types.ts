@@ -1,0 +1,4 @@
+import type { categories } from '$lib/server/db/schema';
+
+export type Category = typeof categories.$inferSelect;
+export type CreateCategory = typeof categories.$inferInsert;

@@ -7,21 +7,19 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import { createTransactionSchema } from '$lib/features/transactions/schema';
 
 export const load: LayoutServerLoad = async () => {
-    const userId = getCurrentUserId();
+	const userId = getCurrentUserId();
 
-    const [categories, accounts, quickTransactionForm] = await Promise.all([
-        getCategories(),
-        getAccounts(userId),
-        superValidate(
-            { date: new Date().toISOString().split('T')[0] },
-            zod4(createTransactionSchema),
-            { errors: false }
-        )
-    ]);
+	const [categories, accounts, quickTransactionForm] = await Promise.all([
+		getCategories(),
+		getAccounts(userId),
+		superValidate({ date: new Date().toISOString().split('T')[0] }, zod4(createTransactionSchema), {
+			errors: false
+		})
+	]);
 
-    return {
-        categories,
-        accounts,
-        quickTransactionForm
-    };
+	return {
+		categories,
+		accounts,
+		quickTransactionForm
+	};
 };

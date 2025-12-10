@@ -3,7 +3,9 @@ import { transactions, accounts, categories } from '$lib/server/db/schema';
 import { eq, desc, and, gte, lte, sql } from 'drizzle-orm';
 import type { CreateTransaction, TransactionWithRelations, TransactionFilter } from './types';
 
-export async function getTransactions(filter?: TransactionFilter): Promise<TransactionWithRelations[]> {
+export async function getTransactions(
+	filter?: TransactionFilter
+): Promise<TransactionWithRelations[]> {
 	const conditions = [];
 
 	if (filter?.accountId) {

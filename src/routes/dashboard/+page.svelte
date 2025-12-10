@@ -1,16 +1,31 @@
-<div class="grid auto-rows-min gap-4 md:grid-cols-3">
-	<div class="bg-muted/50 aspect-video rounded-xl flex items-center justify-center">
-		<span class="text-muted-foreground">Total Balance</span>
+<script lang="ts">
+	import {
+		StatsCards,
+		RecentTransactions,
+		SpendingByCategory,
+		MonthlyTrendChart
+	} from '$lib/features/dashboard/components';
+
+	let { data } = $props();
+</script>
+
+<svelte:head>
+	<title>Dashboard - Finance Tracker</title>
+</svelte:head>
+
+<div class="flex flex-1 flex-col gap-6 p-4 pt-0">
+	<div>
+		<h1 class="text-2xl font-bold tracking-tight">Dashboard</h1>
+		<p class="text-muted-foreground">Your financial overview at a glance</p>
 	</div>
-	<div class="bg-muted/50 aspect-video rounded-xl flex items-center justify-center">
-		<span class="text-muted-foreground">Income</span>
+
+	<StatsCards stats={data.stats} />
+
+	<div class="grid gap-6 lg:grid-cols-2">
+		<MonthlyTrendChart data={data.trend} />
+
+		<SpendingByCategory spending={data.spendingByCategory} />
 	</div>
-	<div class="bg-muted/50 aspect-video rounded-xl flex items-center justify-center">
-		<span class="text-muted-foreground">Expenses</span>
-	</div>
-</div>
-<div
-	class="bg-muted/50 min-h-[50vh] flex-1 rounded-xl md:min-h-min mt-4 flex items-center justify-center"
->
-	<span class="text-muted-foreground">Recent Activity Chart</span>
+
+	<RecentTransactions transactions={data.recentTransactions} />
 </div>

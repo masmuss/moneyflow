@@ -5,12 +5,25 @@
 	import { sidebarData } from '$lib/config';
 	import NavMain from './nav-main.svelte';
 	import Wallet from '@lucide/svelte/icons/wallet';
+	import type { Category } from '$lib/features/categories/types';
+	import type { Account } from '$lib/features/accounts/types';
+	import type { SuperValidated, Infer } from 'sveltekit-superforms';
+	import type { CreateTransactionSchema } from '$lib/features/transactions/schema';
+
+	type Props = ComponentProps<typeof Sidebar.Root> & {
+		categories: Category[];
+		accounts: Account[];
+		quickTransactionForm: SuperValidated<Infer<CreateTransactionSchema>>;
+	};
 
 	let {
 		ref = $bindable(null),
 		collapsible = 'icon',
+		categories,
+		accounts,
+		quickTransactionForm,
 		...restProps
-	}: ComponentProps<typeof Sidebar.Root> = $props();
+	}: Props = $props();
 </script>
 
 <Sidebar.Root {collapsible} {...restProps}>
@@ -28,7 +41,7 @@
 		</div>
 	</Sidebar.Header>
 	<Sidebar.Content>
-		<NavMain items={sidebarData.navMain} />
+		<NavMain items={sidebarData.navMain} {categories} {accounts} {quickTransactionForm} />
 	</Sidebar.Content>
 	<Sidebar.Footer>
 		<NavUser user={sidebarData.user} />

@@ -1,22 +1,27 @@
 <script lang="ts">
-	import CirclePlus from '@lucide/svelte/icons/circle-plus';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import QuickTransaction from '$lib/components/quick-transaction.svelte';
 	import type { NavItem } from '$lib/types';
+	import type { Category } from '$lib/features/categories/types';
+	import type { Account } from '$lib/features/accounts/types';
+	import type { SuperValidated, Infer } from 'sveltekit-superforms';
+	import type { CreateTransactionSchema } from '$lib/features/transactions/schema';
 
-	let { items }: { items: NavItem[] } = $props();
+	type Props = {
+		items: NavItem[];
+		categories: Category[];
+		accounts: Account[];
+		quickTransactionForm: SuperValidated<Infer<CreateTransactionSchema>>;
+	};
+
+	let { items, categories, accounts, quickTransactionForm }: Props = $props();
 </script>
 
 <Sidebar.Group>
 	<Sidebar.GroupContent class="flex flex-col gap-2">
 		<Sidebar.Menu>
 			<Sidebar.MenuItem class="flex items-center gap-2">
-				<Sidebar.MenuButton
-					class="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
-					tooltipContent="Quick create"
-				>
-					<CirclePlus />
-					<span>Quick Create</span>
-				</Sidebar.MenuButton>
+				<QuickTransaction form={quickTransactionForm} {categories} {accounts} />
 			</Sidebar.MenuItem>
 		</Sidebar.Menu>
 		<Sidebar.Menu>

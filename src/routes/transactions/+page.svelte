@@ -3,6 +3,7 @@
 	import TransactionFormWrapper from '$lib/features/transactions/components/transaction-form-wrapper.svelte';
 	import TransactionFormEdit from '$lib/features/transactions/components/transaction-form-edit.svelte';
 	import TransactionDeleteDialog from '$lib/features/transactions/components/transaction-delete-dialog.svelte';
+	import TransactionFilter from '$lib/features/transactions/components/transaction-filter.svelte';
 
 	import type { PageData } from './$types';
 	import type { TransactionWithRelations } from '$lib/features/transactions/types';
@@ -71,10 +72,16 @@
 		<TransactionFormWrapper {data} />
 	</div>
 
+	<TransactionFilter
+		categories={data.categories}
+		accounts={data.accounts}
+		currentFilter={data.filter}
+	/>
+
 	<div class="space-y-6">
 		{#if data.transactions.length === 0}
 			<div class="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed">
-				<p class="text-muted-foreground">No transactions found. Create one to get started.</p>
+				<p class="text-muted-foreground">No transactions found. Try adjusting your filters.</p>
 			</div>
 		{:else}
 			<TransactionList

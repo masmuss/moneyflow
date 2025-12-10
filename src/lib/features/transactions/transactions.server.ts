@@ -1,9 +1,31 @@
 import { db } from '$lib/server/db';
 import { transactions, accounts, categories } from '$lib/server/db/schema';
-import { eq, desc, sql } from 'drizzle-orm';
-import type { CreateTransaction, TransactionWithRelations } from './types';
+import { eq, desc, and, gte, lte, sql } from 'drizzle-orm';
+import type { CreateTransaction, TransactionWithRelations, TransactionFilter } from './types';
 
-export async function getTransactions(accountId?: string): Promise<TransactionWithRelations[]> {
+export async function getTransactions(filter?: TransactionFilter): Promise<TransactionWithRelations[]> {
+	const conditions = [];
+
+	if (filter?.accountId) {
+		conditions.push(eq(transactions.accountId, filter.accountId));
+	}
+
+	if (filter?.categoryId) {
+		conditions.push(eq(transactions.categoryId, filter.categoryId));
+	}
+
+	if (filter?.type) {
+		conditions.push(eq(transactions.type, filter.type));
+	}
+
+	if (filter?.startDate) {
+		conditions.push(gte(transactions.date, filter.startDate));
+	}
+
+	if (filter?.endDate) {
+		conditions.push(lte(transactions.date, filter.endDate));
+	}
+
 	const query = db
 		.select({
 			id: transactions.id,
@@ -23,8 +45,8 @@ export async function getTransactions(accountId?: string): Promise<TransactionWi
 		.innerJoin(accounts, eq(transactions.accountId, accounts.id))
 		.orderBy(desc(transactions.date), desc(transactions.createdAt));
 
-	if (accountId) {
-		return await query.where(eq(transactions.accountId, accountId));
+	if (conditions.length > 0) {
+		return await query.where(and(...conditions));
 	}
 
 	return await query;

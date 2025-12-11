@@ -8,15 +8,19 @@ export const getAccounts = async (userId: string) => {
 };
 
 export const createAccount = async (data: CreateAccount) => {
-	return await db.insert(accounts).values(data).returning();
+	const query = await db.insert(accounts).values(data).returning();
+
+	return query[0];
 };
 
 export const updateAccount = async (id: string, userId: string, data: Partial<CreateAccount>) => {
-	return await db
+	const query = await db
 		.update(accounts)
 		.set(data)
 		.where(and(eq(accounts.id, id), eq(accounts.userId, userId)))
 		.returning();
+
+	return query[0];
 };
 
 export const deleteAccount = async (id: string, userId: string) => {

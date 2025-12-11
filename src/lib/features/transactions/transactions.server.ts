@@ -4,6 +4,7 @@ import { eq, desc, and, gte, lte, sql } from 'drizzle-orm';
 import type { CreateTransaction, TransactionWithRelations, TransactionFilter } from './types';
 
 export async function getTransactions(
+	userId: string,
 	filter?: TransactionFilter
 ): Promise<TransactionWithRelations[]> {
 	const conditions = [];
@@ -48,10 +49,10 @@ export async function getTransactions(
 		.orderBy(desc(transactions.date), desc(transactions.createdAt));
 
 	if (conditions.length > 0) {
-		return await query.where(and(...conditions));
+		return await query.where(and(eq(accounts.userId, userId), ...conditions));
 	}
 
-	return await query;
+	return await query.where(eq(accounts.userId, userId));
 }
 
 export async function getTransactionById(id: string): Promise<TransactionWithRelations | null> {

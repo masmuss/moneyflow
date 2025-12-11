@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { transactions, categories } from '$lib/server/db/schema';
+import { transactions, categories, accounts } from '$lib/server/db/schema';
 import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
 import type {
 	ReportPeriod,
@@ -81,6 +81,7 @@ export function getPresetPeriods(): { value: string; label: string; period: Repo
 }
 
 export async function getIncomeExpenseSummary(
+	userId: string,
 	startDate: string,
 	endDate: string
 ): Promise<IncomeExpenseSummary> {
@@ -90,7 +91,14 @@ export async function getIncomeExpenseSummary(
 			total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`
 		})
 		.from(transactions)
-		.where(and(gte(transactions.date, startDate), lte(transactions.date, endDate)))
+		.innerJoin(accounts, eq(transactions.accountId, accounts.id))
+		.where(
+			and(
+				eq(accounts.userId, userId),
+				gte(transactions.date, startDate),
+				lte(transactions.date, endDate)
+			)
+		)
 		.groupBy(transactions.type);
 
 	const incomeRow = result.find((r) => r.type === 'income');
@@ -110,6 +118,7 @@ export async function getIncomeExpenseSummary(
 }
 
 export async function getCategoryBreakdown(
+	userId: string,
 	startDate: string,
 	endDate: string,
 	type: 'income' | 'expense'
@@ -125,8 +134,10 @@ export async function getCategoryBreakdown(
 		})
 		.from(transactions)
 		.innerJoin(categories, eq(transactions.categoryId, categories.id))
+		.innerJoin(accounts, eq(transactions.accountId, accounts.id))
 		.where(
 			and(
+				eq(accounts.userId, userId),
 				eq(transactions.type, type),
 				gte(transactions.date, startDate),
 				lte(transactions.date, endDate)
@@ -149,6 +160,7 @@ export async function getCategoryBreakdown(
 }
 
 export async function getMonthlyComparison(
+	userId: string,
 	startDate: string,
 	endDate: string
 ): Promise<MonthlyComparison[]> {
@@ -159,7 +171,14 @@ export async function getMonthlyComparison(
 			total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`
 		})
 		.from(transactions)
-		.where(and(gte(transactions.date, startDate), lte(transactions.date, endDate)))
+		.innerJoin(accounts, eq(transactions.accountId, accounts.id))
+		.where(
+			and(
+				eq(accounts.userId, userId),
+				gte(transactions.date, startDate),
+				lte(transactions.date, endDate)
+			)
+		)
 		.groupBy(sql`TO_CHAR(${transactions.date}::date, 'YYYY-MM')`, transactions.type)
 		.orderBy(sql`TO_CHAR(${transactions.date}::date, 'YYYY-MM')`);
 
@@ -193,12 +212,12 @@ export async function getMonthlyComparison(
 	});
 }
 
-export async function getReportData(period: ReportPeriod): Promise<ReportData> {
+export async function getReportData(userId: string, period: ReportPeriod): Promise<ReportData> {
 	const [summary, expenseByCategory, incomeByCategory, monthlyComparison] = await Promise.all([
-		getIncomeExpenseSummary(period.startDate, period.endDate),
-		getCategoryBreakdown(period.startDate, period.endDate, 'expense'),
-		getCategoryBreakdown(period.startDate, period.endDate, 'income'),
-		getMonthlyComparison(period.startDate, period.endDate)
+		getIncomeExpenseSummary(userId, period.startDate, period.endDate),
+		getCategoryBreakdown(userId, period.startDate, period.endDate, 'expense'),
+		getCategoryBreakdown(userId, period.startDate, period.endDate, 'income'),
+		getMonthlyComparison(userId, period.startDate, period.endDate)
 	]);
 
 	return {

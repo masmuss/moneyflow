@@ -26,18 +26,25 @@
 		categories.filter((c) => c.type === 'expense' && !existingCategoryIds.includes(c.id))
 	);
 
-	const form = superForm(formData, {
-		onResult: ({ result }) => {
-			if (result.type === 'success') {
-				toast.success('Budget created successfully!');
-				onSuccess?.();
-				invalidateAll();
+	const form = superForm(
+		{
+			get data() {
+				return formData;
 			}
-		},
-		onError: ({ result }) => {
-			toast.error(result.error?.message || 'Failed to create budget');
+		}.data,
+		{
+			onResult: ({ result }) => {
+				if (result.type === 'success') {
+					toast.success('Budget created successfully!');
+					onSuccess?.();
+					invalidateAll();
+				}
+			},
+			onError: ({ result }) => {
+				toast.error(result.error?.message || 'Failed to create budget');
+			}
 		}
-	});
+	);
 
 	const { form: formStore, enhance, errors } = form;
 

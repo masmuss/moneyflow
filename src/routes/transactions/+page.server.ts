@@ -1,11 +1,4 @@
-import {
-	getTransactions,
-	createTransaction,
-	updateTransaction,
-	deleteTransaction
-} from '$lib/features/transactions/transactions.server';
-import { getCategories } from '$lib/features/categories/categories.server';
-import { getAccounts } from '$lib/features/accounts/accounts.server';
+import { createUserRepository } from '$lib/server/repositories/base';
 import { getCurrentUserId } from '$lib/server/auth';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
@@ -19,6 +12,7 @@ import type { TransactionFilter } from '$lib/features/transactions/types';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const userId = getCurrentUserId();
+	const repo = createUserRepository(userId);
 
 	// Parse filter from URL
 	const filter: TransactionFilter = {};
@@ -35,9 +29,9 @@ export const load: PageServerLoad = async ({ url }) => {
 	if (accountId) filter.accountId = accountId;
 
 	const [transactions, categories, accounts] = await Promise.all([
-		getTransactions(filter),
-		getCategories(),
-		getAccounts(userId)
+		repo.transactions.get(filter),
+		repo.categories.get(),
+		repo.accounts.get()
 	]);
 
 	const form = await superValidate(
@@ -57,6 +51,8 @@ export const load: PageServerLoad = async ({ url }) => {
 
 export const actions: Actions = {
 	create: async ({ request }) => {
+		const userId = getCurrentUserId();
+		const repo = createUserRepository(userId);
 		const form = await superValidate(request, zod4(createTransactionSchema));
 
 		if (!form.valid) {
@@ -64,7 +60,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			await createTransaction({
+			await repo.transactions.create({
 				type: form.data.type,
 				categoryId: form.data.categoryId,
 				accountId: form.data.accountId,
@@ -81,6 +77,8 @@ export const actions: Actions = {
 	},
 
 	update: async ({ request }) => {
+		const userId = getCurrentUserId();
+		const repo = createUserRepository(userId);
 		const form = await superValidate(request, zod4(updateTransactionSchema));
 
 		if (!form.valid) {
@@ -88,7 +86,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			await updateTransaction(form.data.id, {
+			await repo.transactions.update(form.data.id, {
 				type: form.data.type,
 				categoryId: form.data.categoryId,
 				accountId: form.data.accountId,
@@ -105,6 +103,8 @@ export const actions: Actions = {
 	},
 
 	delete: async ({ request }) => {
+		const userId = getCurrentUserId();
+		const repo = createUserRepository(userId);
 		const formData = await request.formData();
 		const id = formData.get('id');
 
@@ -113,7 +113,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			await deleteTransaction(id);
+			await repo.transactions.delete(id);
 			return { success: true };
 		} catch (error) {
 			console.error('Error deleting transaction:', error);

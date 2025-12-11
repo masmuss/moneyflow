@@ -1,12 +1,12 @@
 import { db } from '$lib/server/db';
-import { budgets, categories, transactions } from '$lib/server/db/schema';
+import { budgets, categories, transactions, accounts } from '$lib/server/db/schema';
 import { eq, and, sql, gte, lte } from 'drizzle-orm';
-import { getCurrentUserId } from '$lib/server/auth';
-import type { BudgetWithSpending, MonthlyBudgetSummary } from './types';
+import type { BudgetWithSpending, MonthlyBudgetSummary, Budget, CreateBudget } from './types';
 
-export async function getBudgetsForMonth(month: string): Promise<MonthlyBudgetSummary> {
-	const userId = getCurrentUserId();
-
+export async function getBudgetsForMonth(
+	userId: string,
+	month: string
+): Promise<MonthlyBudgetSummary> {
 	// Get first and last day of the month
 	const [year, monthNum] = month.split('-').map(Number);
 	const firstDay = `${month}-01`;
@@ -28,15 +28,17 @@ export async function getBudgetsForMonth(month: string): Promise<MonthlyBudgetSu
 		.innerJoin(categories, eq(budgets.categoryId, categories.id))
 		.where(and(eq(budgets.userId, userId), eq(budgets.month, month)));
 
-	// Get spending per category for this month
+	// Get spending per category for this month (only from user's accounts)
 	const spendingByCategory = await db
 		.select({
 			categoryId: transactions.categoryId,
 			total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`
 		})
 		.from(transactions)
+		.innerJoin(accounts, eq(transactions.accountId, accounts.id))
 		.where(
 			and(
+				eq(accounts.userId, userId),
 				eq(transactions.type, 'expense'),
 				gte(transactions.date, firstDay),
 				lte(transactions.date, lastDay)
@@ -77,9 +79,10 @@ export async function getBudgetsForMonth(month: string): Promise<MonthlyBudgetSu
 	};
 }
 
-export async function createBudget(data: { categoryId: string; amount: number; month: string }) {
-	const userId = getCurrentUserId();
-
+export async function createBudget(
+	userId: string,
+	data: { categoryId: string; amount: number; month: string }
+): Promise<Budget> {
 	// Check if budget already exists for this category and month
 	const existing = await db
 		.select()
@@ -119,14 +122,13 @@ export async function createBudget(data: { categoryId: string; amount: number; m
 
 export async function updateBudget(
 	id: string,
+	userId: string,
 	data: {
 		categoryId: string;
 		amount: number;
 		month: string;
 	}
-) {
-	const userId = getCurrentUserId();
-
+): Promise<Budget> {
 	const [updated] = await db
 		.update(budgets)
 		.set({
@@ -141,15 +143,14 @@ export async function updateBudget(
 	return updated;
 }
 
-export async function deleteBudget(id: string) {
-	const userId = getCurrentUserId();
-
+export async function deleteBudget(id: string, userId: string): Promise<void> {
 	await db.delete(budgets).where(and(eq(budgets.id, id), eq(budgets.userId, userId)));
 }
 
-export async function copyBudgetsFromPreviousMonth(targetMonth: string) {
-	const userId = getCurrentUserId();
-
+export async function copyBudgetsFromPreviousMonth(
+	userId: string,
+	targetMonth: string
+): Promise<Budget[]> {
 	// Calculate previous month
 	const [year, month] = targetMonth.split('-').map(Number);
 	const prevDate = new Date(year, month - 2, 1);

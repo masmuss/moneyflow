@@ -1,11 +1,5 @@
-import {
-	getBudgetsForMonth,
-	createBudget,
-	updateBudget,
-	deleteBudget,
-	copyBudgetsFromPreviousMonth
-} from '$lib/features/budget/budget.server';
-import { getCategories } from '$lib/features/categories/categories.server';
+import { createUserRepository } from '$lib/server/repositories/base';
+import { getCurrentUserId } from '$lib/server/auth';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
@@ -18,11 +12,13 @@ function getCurrentMonth(): string {
 }
 
 export const load: PageServerLoad = async ({ url }) => {
+	const userId = getCurrentUserId();
+	const repo = createUserRepository(userId);
 	const month = url.searchParams.get('month') || getCurrentMonth();
 
 	const [budgetSummary, categories] = await Promise.all([
-		getBudgetsForMonth(month),
-		getCategories()
+		repo.budgets.getForMonth(month),
+		repo.categories.get()
 	]);
 
 	const form = await superValidate(zod4(createBudgetSchema), { errors: false });
@@ -37,6 +33,8 @@ export const load: PageServerLoad = async ({ url }) => {
 
 export const actions: Actions = {
 	create: async ({ request }) => {
+		const userId = getCurrentUserId();
+		const repo = createUserRepository(userId);
 		const form = await superValidate(request, zod4(createBudgetSchema));
 
 		if (!form.valid) {
@@ -44,7 +42,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			await createBudget({
+			await repo.budgets.create({
 				categoryId: form.data.categoryId,
 				amount: form.data.amount,
 				month: form.data.month
@@ -58,6 +56,8 @@ export const actions: Actions = {
 	},
 
 	update: async ({ request }) => {
+		const userId = getCurrentUserId();
+		const repo = createUserRepository(userId);
 		const form = await superValidate(request, zod4(updateBudgetSchema));
 
 		if (!form.valid) {
@@ -65,7 +65,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			await updateBudget(form.data.id, {
+			await repo.budgets.update(form.data.id, {
 				categoryId: form.data.categoryId,
 				amount: form.data.amount,
 				month: form.data.month
@@ -79,6 +79,8 @@ export const actions: Actions = {
 	},
 
 	delete: async ({ request }) => {
+		const userId = getCurrentUserId();
+		const repo = createUserRepository(userId);
 		const formData = await request.formData();
 		const id = formData.get('id') as string;
 
@@ -87,7 +89,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			await deleteBudget(id);
+			await repo.budgets.delete(id);
 			return { success: true };
 		} catch (error) {
 			console.error('Error deleting budget:', error);
@@ -96,6 +98,8 @@ export const actions: Actions = {
 	},
 
 	copyFromPrevious: async ({ request }) => {
+		const userId = getCurrentUserId();
+		const repo = createUserRepository(userId);
 		const formData = await request.formData();
 		const month = formData.get('month') as string;
 
@@ -104,7 +108,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			const copied = await copyBudgetsFromPreviousMonth(month);
+			const copied = await repo.budgets.copyFromPreviousMonth(month);
 			return { success: true, copiedCount: copied.length };
 		} catch (error) {
 			console.error('Error copying budgets:', error);

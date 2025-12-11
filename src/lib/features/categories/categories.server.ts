@@ -14,9 +14,7 @@ export async function getCategoryById(id: string, userId: string) {
 	const result = await db
 		.select()
 		.from(categories)
-		.where(
-			and(eq(categories.id, id), eq(categories.userId, userId), eq(categories.isActive, true))
-		)
+		.where(and(eq(categories.id, id), eq(categories.userId, userId), eq(categories.isActive, true)))
 		.limit(1);
 	return result[0] || null;
 }

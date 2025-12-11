@@ -56,6 +56,7 @@ export async function getTransactions(
 }
 
 export async function getTransactionById(id: string): Promise<TransactionWithRelations | null> {
+
 	const result = await db
 		.select({
 			id: transactions.id,
@@ -122,7 +123,7 @@ export async function updateTransaction(id: string, data: Partial<CreateTransact
 			oldTransaction.type === 'income' ? -oldTransaction.amount : oldTransaction.amount;
 
 		const newType = data.type || oldTransaction.type;
-		const newAmount = data.amount || oldTransaction.amount;
+		const newAmount = data.amount ?? oldTransaction.amount;
 		const newBalanceChange = newType === 'income' ? newAmount : -newAmount;
 
 		if (data.accountId && data.accountId !== oldTransaction.accountId) {

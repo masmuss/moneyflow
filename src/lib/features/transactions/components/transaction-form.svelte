@@ -110,9 +110,9 @@
 
 	<Form.Field {form} name="amount">
 		<Form.Control>
-			{#snippet children()}
+			{#snippet children({ props })}
 				<Form.Label>Amount</Form.Label>
-				<CurrencyInput bind:value={$data.amount} name="amount" />
+				<CurrencyInput bind:value={$data.amount} name={props.name} />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />

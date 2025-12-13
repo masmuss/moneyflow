@@ -1,8 +1,8 @@
 <script lang="ts">
 	import * as Select from '$lib/components/ui/select';
+	import * as Form from '$lib/components/ui/form';
 	import { CurrencyInput } from '$lib/components/ui/currency-input';
 	import { Button } from '$lib/components/ui/button';
-	import { Label } from '$lib/components/ui/label';
 	import type { Category } from '$lib/features/categories/types';
 	import type { SuperValidated, Infer } from 'sveltekit-superforms';
 	import {
@@ -74,43 +74,47 @@
 	{/if}
 	<input type="hidden" name="month" value={month} />
 
-	<div class="space-y-2">
-		<Label for="categoryId">Category</Label>
-		<Select.Root type="single" name="categoryId" bind:value={$formStore.categoryId}>
-			<Select.Trigger id="categoryId" class="w-full">
-				{@const selected = availableCategories.find((c) => c.id === $formStore.categoryId)}
-				{#if selected}
-					<span class="flex items-center gap-2">
-						<CategoryIcon name={selected.icon} color={selected.color} size={16} />
-						{selected.name}
-					</span>
-				{:else}
-					Select category
-				{/if}
-			</Select.Trigger>
-			<Select.Content>
-				{#each availableCategories as category}
-					<Select.Item value={category.id}>
-						<span class="flex items-center gap-2">
-							<CategoryIcon name={category.icon} color={category.color} size={16} />
-							{category.name}
-						</span>
-					</Select.Item>
-				{/each}
-			</Select.Content>
-		</Select.Root>
-		{#if $errors.categoryId}
-			<p class="text-sm text-destructive">{$errors.categoryId}</p>
-		{/if}
-	</div>
+	<Form.Field {form} name="categoryId">
+		<Form.Control>
+			{#snippet children({ props })}
+				<Form.Label>Category</Form.Label>
+				<Select.Root type="single" name={props.name} bind:value={$formStore.categoryId}>
+					<Select.Trigger id="categoryId" class="w-full">
+						{@const selected = availableCategories.find((c) => c.id === $formStore.categoryId)}
+						{#if selected}
+							<span class="flex items-center gap-2">
+								<CategoryIcon name={selected.icon} color={selected.color} size={16} />
+								{selected.name}
+							</span>
+						{:else}
+							Select category
+						{/if}
+					</Select.Trigger>
+					<Select.Content>
+						{#each availableCategories as category}
+							<Select.Item value={category.id}>
+								<span class="flex items-center gap-2">
+									<CategoryIcon name={category.icon} color={category.color} size={16} />
+									{category.name}
+								</span>
+							</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
+			{/snippet}
+		</Form.Control>
+		<Form.FieldErrors />
+	</Form.Field>
 
-	<div class="space-y-2">
-		<Label for="amount">Budget Amount</Label>
-		<CurrencyInput bind:value={$formStore.amount} name="amount" id="amount" />
-		{#if $errors.amount}
-			<p class="text-sm text-destructive">{$errors.amount}</p>
-		{/if}
-	</div>
+	<Form.Field {form} name="amount">
+		<Form.Control>
+			{#snippet children({ props })}
+				<Form.Label>Budget Amount</Form.Label>
+				<CurrencyInput bind:value={$formStore.amount} name={props.name} id={props.name} />
+			{/snippet}
+		</Form.Control>
+		<Form.FieldErrors />
+	</Form.Field>
 
 	<div class="flex gap-2 pt-4">
 		<Button type="submit" class="flex-1">

@@ -1,5 +1,5 @@
 import { createUserRepository } from '$lib/server/repositories/base';
-import { getCurrentUserId } from '$lib/server/auth';
+import { getUserIdFromRequest } from '$lib/server/auth';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
@@ -11,11 +11,10 @@ import {
 import { getTodayString } from '$lib/utils/date';
 import type { TransactionFilter } from '$lib/features/transactions/types';
 
-export const load: PageServerLoad = async ({ url }) => {
-	const userId = getCurrentUserId();
+export const load: PageServerLoad = async ({ url, request }) => {
+	const userId = await getUserIdFromRequest(request.headers);
 	const repo = createUserRepository(userId);
 
-	// Parse filter from URL
 	const filter: TransactionFilter = {};
 	const startDate = url.searchParams.get('startDate');
 	const endDate = url.searchParams.get('endDate');
@@ -50,7 +49,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
 export const actions: Actions = {
 	create: async ({ request }) => {
-		const userId = getCurrentUserId();
+		const userId = await getUserIdFromRequest(request.headers);
 		const repo = createUserRepository(userId);
 		const form = await superValidate(request, zod4(createTransactionSchema));
 
@@ -76,7 +75,7 @@ export const actions: Actions = {
 	},
 
 	update: async ({ request }) => {
-		const userId = getCurrentUserId();
+		const userId = await getUserIdFromRequest(request.headers);
 		const repo = createUserRepository(userId);
 		const form = await superValidate(request, zod4(updateTransactionSchema));
 
@@ -102,7 +101,7 @@ export const actions: Actions = {
 	},
 
 	delete: async ({ request }) => {
-		const userId = getCurrentUserId();
+		const userId = await getUserIdFromRequest(request.headers);
 		const repo = createUserRepository(userId);
 		const formData = await request.formData();
 		const id = formData.get('id');

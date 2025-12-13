@@ -13,19 +13,29 @@
 	import MoonIcon from '@lucide/svelte/icons/moon';
 	import MonitorIcon from '@lucide/svelte/icons/monitor';
 	import { setMode, resetMode } from 'mode-watcher';
-	import type { User } from '$lib/types';
+	import { authClient } from '$lib/auth-client';
+	import { goto } from '$app/navigation';
+	import type { User } from 'better-auth';
 
 	let { user }: { user: User } = $props();
+
 	const sidebar = useSidebar();
 
-	let initials = $derived(
-		user.name
+	function getInitials(name: string): string {
+		return name
 			.split(' ')
 			.map((n) => n[0])
 			.join('')
 			.toUpperCase()
-			.slice(0, 2)
-	);
+			.slice(0, 2);
+	}
+
+	async function handleSignOut() {
+		await authClient.signOut();
+		goto('/login');
+	}
+
+	let userInitials = $derived(getInitials(user.name));
 </script>
 
 <Sidebar.Menu>
@@ -39,7 +49,10 @@
 						{...props}
 					>
 						<Avatar.Root class="size-8 rounded-lg">
-							<Avatar.Fallback class="rounded-lg">{initials}</Avatar.Fallback>
+							{#if user.image}
+								<Avatar.Image src={user.image} alt={user.name} />
+							{/if}
+							<Avatar.Fallback class="rounded-lg">{userInitials}</Avatar.Fallback>
 						</Avatar.Root>
 						<div class="grid flex-1 text-start text-sm leading-tight">
 							<span class="truncate font-medium">{user.name}</span>
@@ -58,7 +71,10 @@
 				<DropdownMenu.Label class="p-0 font-normal">
 					<div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
 						<Avatar.Root class="size-8 rounded-lg">
-							<Avatar.Fallback class="rounded-lg">{initials}</Avatar.Fallback>
+							{#if user.image}
+								<Avatar.Image src={user.image} alt={user.name} />
+							{/if}
+							<Avatar.Fallback class="rounded-lg">{userInitials}</Avatar.Fallback>
 						</Avatar.Root>
 						<div class="grid flex-1 text-start text-sm leading-tight">
 							<span class="truncate font-medium">{user.name}</span>
@@ -111,7 +127,7 @@
 					</DropdownMenu.SubContent>
 				</DropdownMenu.Sub>
 				<DropdownMenu.Separator />
-				<DropdownMenu.Item>
+				<DropdownMenu.Item onclick={handleSignOut}>
 					<LogOutIcon />
 					Log out
 				</DropdownMenu.Item>

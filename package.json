@@ -57,6 +57,7 @@
 	},
 	"dependencies": {
 		"@types/d3-scale": "^4.0.9",
+		"better-auth": "^1.4.6",
 		"d3-array": "^3.2.4",
 		"d3-scale": "^4.0.2",
 		"postgres": "^3.4.7",

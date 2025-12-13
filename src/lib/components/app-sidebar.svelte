@@ -9,11 +9,13 @@
 	import type { Account } from '$lib/features/accounts/types';
 	import type { SuperValidated, Infer } from 'sveltekit-superforms';
 	import type { CreateTransactionSchema } from '$lib/features/transactions/schema';
+	import type { User } from 'better-auth';
 
 	type Props = ComponentProps<typeof Sidebar.Root> & {
 		categories: Category[];
 		accounts: Account[];
 		quickTransactionForm: SuperValidated<Infer<CreateTransactionSchema>>;
+		user: User;
 	};
 
 	let {
@@ -22,6 +24,7 @@
 		categories,
 		accounts,
 		quickTransactionForm,
+		user,
 		...restProps
 	}: Props = $props();
 </script>
@@ -44,7 +47,7 @@
 		<NavMain items={sidebarData.navMain} {categories} {accounts} {quickTransactionForm} />
 	</Sidebar.Content>
 	<Sidebar.Footer>
-		<NavUser user={sidebarData.user} />
+		<NavUser {user} />
 	</Sidebar.Footer>
 	<Sidebar.Rail />
 </Sidebar.Root>

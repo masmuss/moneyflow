@@ -1,11 +1,13 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import * as Chart from '$lib/components/ui/chart';
+	import * as Empty from '$lib/components/ui/empty';
 	import { formatIDR } from '$lib/utils/currency';
 	import type { MonthlyComparison } from '../types';
 	import { scaleBand } from 'd3-scale';
 	import { BarChart, type ChartContextValue } from 'layerchart';
 	import { cubicInOut } from 'svelte/easing';
+	import BarChart2 from '@lucide/svelte/icons/bar-chart-2';
 
 	type Props = {
 		data: MonthlyComparison[];
@@ -40,9 +42,12 @@
 	</Card.Header>
 	<Card.Content>
 		{#if !hasData}
-			<div class="flex h-[300px] items-center justify-center">
-				<p class="text-muted-foreground text-sm">No transaction data available</p>
-			</div>
+			<Empty.State
+				icon={BarChart2}
+				title="No Trend Data"
+				description="Add transactions to see your monthly trend."
+				class="border-0"
+			/>
 		{:else}
 			<Chart.Container config={chartConfig} class="h-[300px] w-full">
 				<BarChart

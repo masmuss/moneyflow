@@ -3,6 +3,8 @@
 	import AccountFormWrapper from '$lib/features/accounts/components/account-form-wrapper.svelte';
 	import AccountFormEdit from '$lib/features/accounts/components/account-form-edit.svelte';
 	import AccountDeleteDialog from '$lib/features/accounts/components/account-delete-dialog.svelte';
+	import * as Empty from '$lib/components/ui/empty';
+	import { Wallet } from '@lucide/svelte';
 
 	import type { PageData } from './$types';
 	import type { Account } from '$lib/features/accounts/types';
@@ -67,9 +69,11 @@
 
 	<div class="space-y-6">
 		{#if data.accounts.length === 0}
-			<div class="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed">
-				<p class="text-muted-foreground">No accounts found. Create one to get started.</p>
-			</div>
+			<Empty.State
+				icon={Wallet}
+				title="No Accounts Yet"
+				description="Start tracking your finances by adding your first account."
+			/>
 		{:else}
 			<AccountList accounts={data.accounts} onEdit={handleEdit} onDelete={handleDelete} />
 		{/if}

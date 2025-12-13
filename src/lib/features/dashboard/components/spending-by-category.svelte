@@ -3,6 +3,8 @@
 	import { formatIDR } from '$lib/utils/currency';
 	import type { SpendingByCategory } from '../dashboard.server';
 	import CategoryIcon from '$lib/features/categories/components/category-icon.svelte';
+	import * as Empty from '$lib/components/ui/empty';
+	import { Tags } from '@lucide/svelte';
 
 	let { spending }: { spending: SpendingByCategory[] } = $props();
 
@@ -23,9 +25,12 @@
 	</Card.Header>
 	<Card.Content>
 		{#if spending.length === 0}
-			<div class="flex min-h-[100px] items-center justify-center">
-				<p class="text-muted-foreground text-sm">No expenses this month</p>
-			</div>
+			<Empty.State
+				icon={Tags}
+				title="No Spending Data"
+				description="Add expense transactions to see spending by category."
+				class="border-0"
+			/>
 		{:else}
 			<div class="space-y-4">
 				{#each spending as category (category.categoryId)}

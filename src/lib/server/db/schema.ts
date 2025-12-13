@@ -88,7 +88,8 @@ export const usersRelations = relations(users, ({ many }) => ({
 	oauthAccounts: many(oauthAccounts),
 	categories: many(categories),
 	budgets: many(budgets),
-	accounts: many(accounts)
+	accounts: many(accounts),
+	transactions: many(transactions)
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -173,6 +174,9 @@ export const transactions = pgTable(
 			.primaryKey()
 			.$defaultFn(() => crypto.randomUUID()),
 		type: transactionTypeEnum('type').notNull(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
 		categoryId: uuid('category_id')
 			.references(() => categories.id, { onDelete: 'set null' })
 			.notNull(),
@@ -186,12 +190,17 @@ export const transactions = pgTable(
 		updatedAt: timestamp('updated_at').defaultNow()
 	},
 	(table) => [
+		index('transactions_user_id_idx').on(table.userId),
 		index('transactions_category_id_idx').on(table.categoryId),
 		index('transactions_account_id_idx').on(table.accountId)
 	]
 );
 
 export const transactionsRelations = relations(transactions, ({ one }) => ({
+	user: one(users, {
+		fields: [transactions.userId],
+		references: [users.id]
+	}),
 	category: one(categories, {
 		fields: [transactions.categoryId],
 		references: [categories.id]

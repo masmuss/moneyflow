@@ -9,6 +9,7 @@
 	import { registerSchema, type RegisterSchema } from '../schema';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
+	import { untrack } from 'svelte';
 
 	type Props = {
 		data: SuperValidated<Infer<RegisterSchema>>;
@@ -16,18 +17,20 @@
 
 	let { data }: Props = $props();
 
-	const form = superForm(data, {
-		validators: zod4(registerSchema),
-		onResult: ({ result }) => {
-			if (result.type === 'success') {
-				toast.success('Account created successfully!');
-				goto('/dashboard');
+	const form = untrack(() =>
+		superForm(data, {
+			validators: zod4(registerSchema),
+			onResult: ({ result }) => {
+				if (result.type === 'success') {
+					toast.success('Account created successfully!');
+					goto('/dashboard');
+				}
+			},
+			onError: ({ result }) => {
+				toast.error(result.error.message || 'Registration failed');
 			}
-		},
-		onError: ({ result }) => {
-			toast.error(result.error.message || 'Registration failed');
-		}
-	});
+		})
+	);
 
 	const { form: formData, enhance, delayed } = form;
 </script>

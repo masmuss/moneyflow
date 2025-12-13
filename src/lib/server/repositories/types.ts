@@ -36,8 +36,8 @@ type CategoryRepository = {
 type TransactionRepository = {
 	get: (filter?: TransactionFilter) => Promise<TransactionWithRelations[]>;
 	getById: (id: string) => Promise<TransactionWithRelations | null>;
-	create: (data: CreateTransaction) => Promise<Transaction>;
-	update: (id: string, data: Partial<CreateTransaction>) => Promise<Transaction>;
+	create: (data: WithoutUserId<CreateTransaction>) => Promise<Transaction>;
+	update: (id: string, data: Partial<WithoutUserId<CreateTransaction>>) => Promise<Transaction>;
 	delete: (id: string) => Promise<Transaction>;
 };
 

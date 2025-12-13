@@ -53,10 +53,10 @@ export function createUserRepository(userId: string): UserRepository {
 		},
 		transactions: {
 			get: (filter) => getTransactions(userId, filter),
-			getById: (id) => getTransactionById(id),
-			create: (data) => createTransaction(data),
-			update: (id, data) => updateTransaction(id, data),
-			delete: (id) => deleteTransaction(id)
+			getById: (id) => getTransactionById(id, userId),
+			create: (data) => createTransaction({ ...data, userId }),
+			update: (id, data) => updateTransaction(id, userId, { ...data, userId }),
+			delete: (id) => deleteTransaction(id, userId)
 		},
 		budgets: {
 			getForMonth: (month) => getBudgetsForMonth(userId, month),

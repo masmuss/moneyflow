@@ -164,18 +164,18 @@ function handleAmountInput(e: Event) {
 
 ---
 
-### 8. Long Components (>100 lines)
+### 8. Long Components (>100 lines) (DONE)
 
-| File                                   | Lines |
-| -------------------------------------- | ----- |
-| `transaction-form.svelte`              | 235   |
-| `transaction-form-edit.svelte`         | 248   |
-| `budget-form.svelte`                   | 156   |
-| `budget-form-edit.svelte`              | 158   |
-| `dashboard/monthly-trend-chart.svelte` | 117   |
-| `transaction-filter.svelte`            | 200+  |
+| File                                   | Before | After |
+| -------------------------------------- | ------ | ----- |
+| `transaction-form.svelte`              | 235    | 150   |
+| `transaction-form-edit.svelte`         | 248    | 53    |
+| `budget-form.svelte`                   | 156    | 120   |
+| `budget-form-edit.svelte`              | 158    | 45    |
+| `dashboard/monthly-trend-chart.svelte` | 117    | 79    |
+| `transaction-filter.svelte`            | 200+   | 158   |
 
-**Suggested Fix**: Break down into smaller, focused components. Extract form fields into reusable components.
+**Fixed**: Extracted reusable components (`AccountSelect`, `CategorySelect`, `TypeSelect`, `CurrencyInput`, `FormEditSheet`) to reduce code duplication.
 
 ---
 

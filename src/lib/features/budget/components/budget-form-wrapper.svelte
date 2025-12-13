@@ -3,13 +3,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Plus } from '@lucide/svelte';
 	import type { Category } from '$lib/features/categories/types';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { CreateBudgetInput } from '../schema';
+	import type { Infer, SuperValidated } from 'sveltekit-superforms';
+	import type { CreateBudgetSchema } from '../schema';
 	import BudgetForm from './budget-form.svelte';
 
 	type Props = {
 		categories: Category[];
-		form: SuperValidated<CreateBudgetInput>;
+		form: SuperValidated<Infer<CreateBudgetSchema>>;
 		month: string;
 		existingCategoryIds: string[];
 	};

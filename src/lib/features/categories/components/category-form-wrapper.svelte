@@ -2,9 +2,6 @@
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { Button } from '$lib/components/ui/button';
 	import CategoryForm from './category-form.svelte';
-	import { superValidate } from 'sveltekit-superforms';
-	import { zod4 } from 'sveltekit-superforms/adapters';
-	import { createCategorySchema } from '../schema';
 	import { Plus } from '@lucide/svelte';
 	import { invalidateAll } from '$app/navigation';
 	import type { SuperValidated, Infer } from 'sveltekit-superforms';

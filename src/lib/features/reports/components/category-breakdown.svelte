@@ -1,8 +1,10 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
+	import * as Empty from '$lib/components/ui/empty';
 	import { formatIDR } from '$lib/utils/currency';
 	import CategoryIcon from '$lib/features/categories/components/category-icon.svelte';
 	import type { CategoryBreakdown } from '../types';
+	import Tags from '@lucide/svelte/icons/tags';
 
 	type Props = {
 		title: string;
@@ -24,9 +26,7 @@
 	</Card.Header>
 	<Card.Content>
 		{#if data.length === 0}
-			<div class="text-muted-foreground flex h-[200px] items-center justify-center text-sm">
-				{emptyMessage}
-			</div>
+			<Empty.State icon={Tags} title="No Categories" description={emptyMessage} class="border-0" />
 		{:else}
 			<div class="space-y-4">
 				{#each data as category}

@@ -4,6 +4,7 @@
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import * as Select from '$lib/components/ui/select';
 	import * as Sheet from '$lib/components/ui/sheet';
+	import { CurrencyInput } from '$lib/components/ui/currency-input';
 	import {
 		createTransactionSchema,
 		type CreateTransactionSchema,
@@ -14,7 +15,6 @@
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
 	import { untrack } from 'svelte';
-	import { formatIDRInput, parseIDRInput } from '$lib/utils/currency';
 	import type { Category } from '$lib/features/categories/types';
 	import type { Account } from '$lib/features/accounts/types';
 	import CategoryIcon from '$lib/features/categories/components/category-icon.svelte';
@@ -55,15 +55,6 @@
 		$data.type ? categories.filter((c) => c.type === $data.type) : categories
 	);
 
-	let displayAmount = $state('0');
-
-	function handleAmountInput(e: Event) {
-		const input = e.target as HTMLInputElement;
-		const rawValue = parseIDRInput(input.value);
-		$data.amount = rawValue;
-		displayAmount = formatIDRInput(rawValue);
-	}
-
 	$effect(() => {
 		const currentType = $data.type;
 		if (currentType) {
@@ -75,7 +66,7 @@
 	});
 
 	function resetForm() {
-		displayAmount = '0';
+		$data.amount = 0;
 	}
 </script>
 
@@ -121,22 +112,9 @@
 
 				<Form.Field {form} name="amount">
 					<Form.Control>
-						{#snippet children({ props })}
+						{#snippet children()}
 							<Form.Label>Amount</Form.Label>
-							<InputGroup.Root>
-								<InputGroup.Addon>
-									<InputGroup.Text>Rp</InputGroup.Text>
-								</InputGroup.Addon>
-								<InputGroup.Input
-									{...props}
-									type="text"
-									inputmode="numeric"
-									value={displayAmount}
-									oninput={handleAmountInput}
-									placeholder="0"
-								/>
-							</InputGroup.Root>
-							<input type="hidden" name="amount" value={$data.amount} />
+							<CurrencyInput bind:value={$data.amount} name="amount" />
 						{/snippet}
 					</Form.Control>
 					<Form.FieldErrors />

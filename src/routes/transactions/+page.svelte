@@ -4,6 +4,8 @@
 	import TransactionFormEdit from '$lib/features/transactions/components/transaction-form-edit.svelte';
 	import TransactionDeleteDialog from '$lib/features/transactions/components/transaction-delete-dialog.svelte';
 	import TransactionFilter from '$lib/features/transactions/components/transaction-filter.svelte';
+	import * as Empty from '$lib/components/ui/empty';
+	import { Receipt } from '@lucide/svelte';
 
 	import type { PageData } from './$types';
 	import type { TransactionWithRelations } from '$lib/features/transactions/types';
@@ -80,9 +82,11 @@
 
 	<div class="space-y-6">
 		{#if data.transactions.length === 0}
-			<div class="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed">
-				<p class="text-muted-foreground">No transactions found. Try adjusting your filters.</p>
-			</div>
+			<Empty.State
+				icon={Receipt}
+				title="No Transactions Found"
+				description="No transactions match your current filters. Try adjusting your search criteria."
+			/>
 		{:else}
 			<TransactionList
 				transactions={data.transactions}

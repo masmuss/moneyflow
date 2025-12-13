@@ -89,7 +89,7 @@ export const createCategorySchema = z.object({
 export type CreateCategorySchema = typeof createCategorySchema;
 
 export const updateCategorySchema = z.object({
-	id: z.string().uuid('Invalid category ID'),
+	id: z.uuid('Invalid category ID'),
 	name: z
 		.string()
 		.min(1, 'Category name is required')

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { CircleChevronUp, CircleChevronDown } from '@lucide/svelte';
+	import * as Empty from '$lib/components/ui/empty';
+	import { CircleChevronUp, CircleChevronDown, Receipt } from '@lucide/svelte';
 	import { formatIDR } from '$lib/utils/currency';
 	import type { RecentTransaction } from '../dashboard.server';
 	import CategoryIcon from '$lib/features/categories/components/category-icon.svelte';
@@ -15,9 +16,12 @@
 	</Card.Header>
 	<Card.Content>
 		{#if transactions.length === 0}
-			<div class="flex min-h-[100px] items-center justify-center">
-				<p class="text-muted-foreground text-sm">No transactions yet</p>
-			</div>
+			<Empty.State
+				icon={Receipt}
+				title="No Transactions"
+				description="No transactions yet"
+				class="border-0"
+			/>
 		{:else}
 			<div class="space-y-4">
 				{#each transactions as transaction (transaction.id)}

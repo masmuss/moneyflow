@@ -3,6 +3,8 @@
 	import CategoryFormWrapper from '$lib/features/categories/components/category-form-wrapper.svelte';
 	import CategoryFormEdit from '$lib/features/categories/components/category-form-edit.svelte';
 	import CategoryDeleteDialog from '$lib/features/categories/components/category-delete-dialog.svelte';
+	import * as Empty from '$lib/components/ui/empty';
+	import { Tags } from '@lucide/svelte';
 
 	import type { PageData } from './$types';
 	import type { Category } from '$lib/features/categories/types';
@@ -70,9 +72,11 @@
 
 	<div class="space-y-6">
 		{#if data.categories.length === 0}
-			<div class="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed">
-				<p class="text-muted-foreground">No categories found. Create one to get started.</p>
-			</div>
+			<Empty.State
+				icon={Tags}
+				title="No Categories Yet"
+				description="Organize your transactions by creating categories."
+			/>
 		{:else}
 			<CategoryList categories={data.categories} onEdit={handleEdit} onDelete={handleDelete} />
 		{/if}

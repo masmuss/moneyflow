@@ -16,18 +16,23 @@ export const categoryTypeEnum = pgEnum('category_type', ['income', 'expense']);
 export const accountTypeEnum = pgEnum('account_type', ['cash', 'bank', 'credit_card', 'savings']);
 export const currencyEnum = pgEnum('currency', ['IDR', 'USD', 'EUR', 'SGD', 'MYR']);
 
-export const categories = pgTable('categories', {
-	id: uuid('id')
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
-	name: text('name').notNull(),
-	type: categoryTypeEnum('type').notNull(),
-	color: text('color').default('#6366f1').notNull(),
-	icon: text('icon'),
-	isActive: boolean('is_active').default(true).notNull(),
-	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at').defaultNow()
-});
+export const categories = pgTable(
+	'categories',
+	{
+		id: uuid('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		userId: text('user_id').notNull(),
+		name: text('name').notNull(),
+		type: categoryTypeEnum('type').notNull(),
+		color: text('color').default('#6366f1').notNull(),
+		icon: text('icon'),
+		isActive: boolean('is_active').default(true).notNull(),
+		createdAt: timestamp('created_at').defaultNow(),
+		updatedAt: timestamp('updated_at').defaultNow()
+	},
+	(table) => [index('categories_user_id_idx').on(table.userId)]
+);
 
 export const categoriesRelations = relations(categories, ({ many }) => ({
 	transactions: many(transactions)

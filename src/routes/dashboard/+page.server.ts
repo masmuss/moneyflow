@@ -5,7 +5,12 @@ import {
 	getRecentTransactions,
 	getMonthlyTrend
 } from '$lib/features/dashboard/dashboard.server';
-import { getCurrentUserId } from '@/server/auth';
+import { getCurrentUserId } from '$lib/server/auth';
+import {
+	DEFAULT_RECENT_TRANSACTIONS_LIMIT,
+	DEFAULT_TREND_MONTHS_SHORT,
+	DEFAULT_TREND_MONTHS_LONG
+} from '$lib/constants';
 
 export const load: PageServerLoad = async () => {
 	const userId = getCurrentUserId();
@@ -14,9 +19,9 @@ export const load: PageServerLoad = async () => {
 		await Promise.all([
 			getDashboardStats(userId),
 			getSpendingByCategory(userId),
-			getRecentTransactions(userId, 5),
-			getMonthlyTrend(userId, 6),
-			getMonthlyTrend(userId, 12)
+			getRecentTransactions(userId, DEFAULT_RECENT_TRANSACTIONS_LIMIT),
+			getMonthlyTrend(userId, DEFAULT_TREND_MONTHS_SHORT),
+			getMonthlyTrend(userId, DEFAULT_TREND_MONTHS_LONG)
 		]);
 
 	return {

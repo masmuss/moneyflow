@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import * as Empty from '$lib/components/ui/empty';
 	import { formatIDR } from '$lib/utils/currency';
-	import { Pencil, Trash2 } from '@lucide/svelte';
+	import { Pencil, Trash2, PiggyBank } from '@lucide/svelte';
 	import type { BudgetWithSpending } from '../types';
 	import CategoryIcon from '$lib/features/categories/components/category-icon.svelte';
 
@@ -85,8 +86,10 @@
 	{/each}
 
 	{#if budgets.length === 0}
-		<div class="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed">
-			<p class="text-muted-foreground">No budgets set for this month. Create one to get started.</p>
-		</div>
+		<Empty.State
+			icon={PiggyBank}
+			title="No Budgets Set"
+			description="Set monthly budgets to track and control your spending."
+		/>
 	{/if}
 </div>

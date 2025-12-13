@@ -3,7 +3,10 @@ import { transactions, accounts, categories } from '$lib/server/db/schema';
 import { eq, desc, and, gte, lte, sql } from 'drizzle-orm';
 import type { CreateTransaction, TransactionWithRelations, TransactionFilter } from './types';
 
-export async function getTransactions(filter?: TransactionFilter): Promise<TransactionWithRelations[]> {
+export async function getTransactions(
+	userId: string,
+	filter?: TransactionFilter
+): Promise<TransactionWithRelations[]> {
 	const conditions = [];
 
 	if (filter?.accountId) {
@@ -46,10 +49,10 @@ export async function getTransactions(filter?: TransactionFilter): Promise<Trans
 		.orderBy(desc(transactions.date), desc(transactions.createdAt));
 
 	if (conditions.length > 0) {
-		return await query.where(and(...conditions));
+		return await query.where(and(eq(accounts.userId, userId), ...conditions));
 	}
 
-	return await query;
+	return await query.where(eq(accounts.userId, userId));
 }
 
 export async function getTransactionById(id: string): Promise<TransactionWithRelations | null> {
@@ -119,7 +122,7 @@ export async function updateTransaction(id: string, data: Partial<CreateTransact
 			oldTransaction.type === 'income' ? -oldTransaction.amount : oldTransaction.amount;
 
 		const newType = data.type || oldTransaction.type;
-		const newAmount = data.amount || oldTransaction.amount;
+		const newAmount = data.amount ?? oldTransaction.amount;
 		const newBalanceChange = newType === 'income' ? newAmount : -newAmount;
 
 		if (data.accountId && data.accountId !== oldTransaction.accountId) {

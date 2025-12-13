@@ -2,24 +2,20 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Form from '$lib/components/ui/form';
-	import * as InputGroup from '$lib/components/ui/input-group';
-	import * as Select from '$lib/components/ui/select';
+	import { CurrencyInput } from '$lib/components/ui/currency-input';
+	import { AccountSelect, CategorySelect, TypeSelect } from '$lib/components/form-fields';
 	import {
 		createTransactionSchema,
 		updateTransactionSchema,
 		type CreateTransactionSchema,
-		type UpdateTransactionSchema,
-		TRANSACTION_TYPES,
-		TRANSACTION_TYPE_LABELS
+		type UpdateTransactionSchema
 	} from '../schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
 	import { untrack } from 'svelte';
-	import { formatIDRInput, parseIDRInput } from '$lib/utils/currency';
 	import type { Category } from '$lib/features/categories/types';
 	import type { Account } from '$lib/features/accounts/types';
-	import CategoryIcon from '$lib/features/categories/components/category-icon.svelte';
 
 	type CreateFormData = SuperValidated<Infer<CreateTransactionSchema>>;
 	type UpdateFormData = SuperValidated<Infer<UpdateTransactionSchema>>;
@@ -44,9 +40,7 @@
 			onUpdated: ({ form: updatedForm }) => {
 				if (updatedForm.valid) {
 					const action = mode === 'create' ? 'created' : 'updated';
-					toast.success(`Transaction ${action} successfully!`, {
-						duration: 4000
-					});
+					toast.success(`Transaction ${action} successfully!`, { duration: 4000 });
 					onSuccess?.();
 				} else {
 					toast.error(`Failed to ${mode} transaction. Please check the form.`);
@@ -56,19 +50,6 @@
 	);
 
 	const { form: data, enhance, delayed } = form;
-
-	const filteredCategories = $derived(
-		$data.type ? categories.filter((c) => c.type === $data.type) : categories
-	);
-
-	let displayAmount = $state(formatIDRInput(untrack(() => formData.data.amount) || 0));
-
-	function handleAmountInput(e: Event) {
-		const input = e.target as HTMLInputElement;
-		const rawValue = parseIDRInput(input.value);
-		$data.amount = rawValue;
-		displayAmount = formatIDRInput(rawValue);
-	}
 
 	$effect(() => {
 		const currentType = $data.type;
@@ -95,18 +76,7 @@
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Type</Form.Label>
-				<Select.Root type="single" bind:value={$data.type} name={props.name}>
-					<Select.Trigger {...props} class="w-full">
-						{$data.type ? TRANSACTION_TYPE_LABELS[$data.type] : 'Select type'}
-					</Select.Trigger>
-					<Select.Content>
-						{#each TRANSACTION_TYPES as type}
-							<Select.Item value={type} label={TRANSACTION_TYPE_LABELS[type]}>
-								{TRANSACTION_TYPE_LABELS[type]}
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
+				<TypeSelect bind:value={$data.type} name={props.name} label="" />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />
@@ -116,23 +86,7 @@
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Account</Form.Label>
-				<Select.Root type="single" bind:value={$data.accountId} name={props.name}>
-					<Select.Trigger {...props} class="w-full">
-						{#if $data.accountId}
-							{@const account = accounts.find((a) => a.id === $data.accountId)}
-							{account?.name || 'Select account'}
-						{:else}
-							Select account
-						{/if}
-					</Select.Trigger>
-					<Select.Content>
-						{#each accounts as account}
-							<Select.Item value={account.id} label={account.name}>
-								{account.name}
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
+				<AccountSelect bind:value={$data.accountId} {accounts} name={props.name} label="" />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />
@@ -142,39 +96,13 @@
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Category</Form.Label>
-				<Select.Root type="single" bind:value={$data.categoryId} name={props.name}>
-					<Select.Trigger {...props} class="w-full">
-						{#if $data.categoryId}
-							{@const category = categories.find((c) => c.id === $data.categoryId)}
-							{#if category}
-								<div class="flex items-center gap-2">
-									<CategoryIcon name={category.icon} color={category.color} size={16} />
-									<span>{category.name}</span>
-								</div>
-							{:else}
-								Select category
-							{/if}
-						{:else}
-							Select category
-						{/if}
-					</Select.Trigger>
-					<Select.Content>
-						{#if filteredCategories.length === 0}
-							<div class="text-muted-foreground px-2 py-4 text-center text-sm">
-								{$data.type ? `No ${$data.type} categories found` : 'Select a type first'}
-							</div>
-						{:else}
-							{#each filteredCategories as category}
-								<Select.Item value={category.id} label={category.name}>
-									<div class="flex items-center gap-2">
-										<CategoryIcon name={category.icon} color={category.color} size={16} />
-										<span>{category.name}</span>
-									</div>
-								</Select.Item>
-							{/each}
-						{/if}
-					</Select.Content>
-				</Select.Root>
+				<CategorySelect
+					bind:value={$data.categoryId}
+					{categories}
+					filterByType={$data.type}
+					name={props.name}
+					label=""
+				/>
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />
@@ -184,19 +112,7 @@
 		<Form.Control>
 			{#snippet children()}
 				<Form.Label>Amount</Form.Label>
-				<InputGroup.Root>
-					<InputGroup.Addon>
-						<InputGroup.Text>Rp</InputGroup.Text>
-					</InputGroup.Addon>
-					<InputGroup.Input
-						type="text"
-						value={displayAmount}
-						oninput={handleAmountInput}
-						inputmode="numeric"
-						placeholder="0"
-					/>
-				</InputGroup.Root>
-				<input type="hidden" name="amount" value={$data.amount} />
+				<CurrencyInput bind:value={$data.amount} name="amount" />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />

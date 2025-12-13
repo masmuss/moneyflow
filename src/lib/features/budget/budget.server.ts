@@ -1,6 +1,7 @@
 import { db } from '$lib/server/db';
 import { budgets, categories, transactions, accounts } from '$lib/server/db/schema';
 import { eq, and, sql, gte, lte } from 'drizzle-orm';
+import { toDateString } from '$lib/utils/date';
 import type { BudgetWithSpending, MonthlyBudgetSummary, Budget, CreateBudget } from './types';
 
 export async function getBudgetsForMonth(
@@ -10,7 +11,7 @@ export async function getBudgetsForMonth(
 	// Get first and last day of the month
 	const [year, monthNum] = month.split('-').map(Number);
 	const firstDay = `${month}-01`;
-	const lastDay = new Date(year, monthNum, 0).toISOString().split('T')[0];
+	const lastDay = toDateString(new Date(year, monthNum, 0));
 
 	// Get all budgets for this month with their categories
 	const budgetList = await db

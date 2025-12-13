@@ -4,6 +4,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { AccountSelect, CategorySelect, TypeSelect } from '$lib/components/form-fields';
 	import { Funnel, X } from '@lucide/svelte';
+	import { toDateString } from '$lib/utils/date';
 	import type { Category } from '$lib/features/categories/types';
 	import type { Account } from '$lib/features/accounts/types';
 	import type { TransactionFilter } from '../types';
@@ -23,7 +24,7 @@
 	let selectedCategoryId = $state('');
 	let selectedAccountId = $state('');
 
-	// Sync state when currentFilter changes (e.g., on navigation)
+	// Sync state when currentFilter changes (e.g., on navigation)k
 	$effect(() => {
 		startDate = currentFilter.startDate || '';
 		endDate = currentFilter.endDate || '';
@@ -63,26 +64,25 @@
 
 	function setQuickFilter(period: 'today' | 'week' | 'month' | 'year') {
 		const today = new Date();
-		const formatDate = (d: Date) => d.toISOString().split('T')[0];
 
-		endDate = formatDate(today);
+		endDate = toDateString(today);
 
 		switch (period) {
 			case 'today':
-				startDate = formatDate(today);
+				startDate = toDateString(today);
 				break;
 			case 'week':
 				const weekAgo = new Date(today);
 				weekAgo.setDate(today.getDate() - 7);
-				startDate = formatDate(weekAgo);
+				startDate = toDateString(weekAgo);
 				break;
 			case 'month':
 				const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-				startDate = formatDate(monthStart);
+				startDate = toDateString(monthStart);
 				break;
 			case 'year':
 				const yearStart = new Date(today.getFullYear(), 0, 1);
-				startDate = formatDate(yearStart);
+				startDate = toDateString(yearStart);
 				break;
 		}
 

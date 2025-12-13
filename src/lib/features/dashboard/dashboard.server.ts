@@ -1,34 +1,32 @@
 import { db } from '$lib/server/db';
 import { accounts, transactions, categories } from '$lib/server/db/schema';
 import { eq, sql, and, gte, lte, desc } from 'drizzle-orm';
+import { toDateString, formatShortMonth } from '$lib/utils/date';
 import type { DashboardStats, SpendingByCategory, RecentTransaction, MonthlyTrend } from './types';
 
 export type { DashboardStats, SpendingByCategory, RecentTransaction, MonthlyTrend } from './types';
 
-// Helper: Get current month date range
 function getCurrentMonthRange(): { firstDay: string; lastDay: string } {
 	const now = new Date();
 	const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 	const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
 	return {
-		firstDay: firstDayOfMonth.toISOString().split('T')[0],
-		lastDay: lastDayOfMonth.toISOString().split('T')[0]
+		firstDay: toDateString(firstDayOfMonth),
+		lastDay: toDateString(lastDayOfMonth)
 	};
 }
 
-// Helper: Get month date range for specific date
 function getMonthRange(date: Date): { firstDay: string; lastDay: string } {
 	const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
 	const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
 	return {
-		firstDay: firstDayOfMonth.toISOString().split('T')[0],
-		lastDay: lastDayOfMonth.toISOString().split('T')[0]
+		firstDay: toDateString(firstDayOfMonth),
+		lastDay: toDateString(lastDayOfMonth)
 	};
 }
 
-// Helper: Get transaction sum by type and date range
 async function getTransactionSum(
 	userId: string,
 	type: 'income' | 'expense',
@@ -152,7 +150,7 @@ export async function getMonthlyTrend(userId: string, months: number = 6): Promi
 			firstDay,
 			lastDay,
 			month: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`,
-			monthLabel: date.toLocaleDateString('id-ID', { month: 'short' })
+			monthLabel: formatShortMonth(date)
 		};
 	});
 

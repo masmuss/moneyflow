@@ -4,6 +4,7 @@ import { getCurrentUserId } from '$lib/server/auth';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { createTransactionSchema } from '$lib/features/transactions/schema';
+import { getTodayString } from '$lib/utils/date';
 
 export const load: LayoutServerLoad = async () => {
 	const userId = getCurrentUserId();
@@ -12,7 +13,7 @@ export const load: LayoutServerLoad = async () => {
 	const [categories, accounts, quickTransactionForm] = await Promise.all([
 		repo.categories.get(),
 		repo.accounts.get(),
-		superValidate({ date: new Date().toISOString().split('T')[0] }, zod4(createTransactionSchema), {
+		superValidate({ date: getTodayString() }, zod4(createTransactionSchema), {
 			errors: false
 		})
 	]);

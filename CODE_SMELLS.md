@@ -179,28 +179,22 @@ function handleAmountInput(e: Event) {
 
 ---
 
-### 9. Magic Strings in Date Formatting
+### 9. Magic Strings in Date Formatting (DONE)
 
 - **Files**:
   - `src/lib/features/reports/reports.server.ts`
   - `src/lib/features/dashboard/dashboard.server.ts`
   - Various components
 
-**Issue Type**: Inconsistent date formatting
+**Fixed**: Created centralized date formatting utilities in `src/lib/utils/date.ts`:
 
 ```typescript
-// Multiple places use these patterns inconsistently:
-date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-date.toLocaleDateString('id-ID', { month: 'short' });
-toISOString().split('T')[0];
-```
-
-**Suggested Fix**: Create centralized date formatting utilities in `src/lib/utils/date.ts`:
-
-```typescript
-export const formatMonthYear = (date: Date) => ...
-export const formatShortDate = (date: Date) => ...
-export const toDateString = (date: Date) => ...
+export function toDateString(date: Date): string     // "2024-12-13"
+export function formatMonthYear(date: Date): string  // "December 2024"
+export function formatShortMonth(date: Date): string // "Dec"
+export function formatShortDate(date: Date): string  // "13 Dec"
+export function formatDateRange(start, end): string  // "Jun - Dec 2024"
+export function getTodayString(): string             // Today as "2024-12-13"
 ```
 
 ---

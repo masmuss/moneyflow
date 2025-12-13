@@ -1,6 +1,12 @@
 import { db } from '$lib/server/db';
 import { transactions, categories, accounts } from '$lib/server/db/schema';
 import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
+import {
+	toDateString,
+	formatMonthYear,
+	formatShortMonth,
+	formatDateRange
+} from '$lib/utils/date';
 import type {
 	ReportPeriod,
 	IncomeExpenseSummary,
@@ -11,7 +17,6 @@ import type {
 
 export function getPresetPeriods(): { value: string; label: string; period: ReportPeriod }[] {
 	const today = new Date();
-	const formatDate = (d: Date) => d.toISOString().split('T')[0];
 
 	// This month
 	const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -36,44 +41,44 @@ export function getPresetPeriods(): { value: string; label: string; period: Repo
 			value: 'this-month',
 			label: 'This Month',
 			period: {
-				startDate: formatDate(thisMonthStart),
-				endDate: formatDate(thisMonthEnd),
-				label: thisMonthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+				startDate: toDateString(thisMonthStart),
+				endDate: toDateString(thisMonthEnd),
+				label: formatMonthYear(thisMonthStart, 'en-US')
 			}
 		},
 		{
 			value: 'last-month',
 			label: 'Last Month',
 			period: {
-				startDate: formatDate(lastMonthStart),
-				endDate: formatDate(lastMonthEnd),
-				label: lastMonthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+				startDate: toDateString(lastMonthStart),
+				endDate: toDateString(lastMonthEnd),
+				label: formatMonthYear(lastMonthStart, 'en-US')
 			}
 		},
 		{
 			value: 'last-3-months',
 			label: 'Last 3 Months',
 			period: {
-				startDate: formatDate(last3MonthsStart),
-				endDate: formatDate(thisMonthEnd),
-				label: `${last3MonthsStart.toLocaleDateString('en-US', { month: 'short' })} - ${thisMonthEnd.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
+				startDate: toDateString(last3MonthsStart),
+				endDate: toDateString(thisMonthEnd),
+				label: formatDateRange(last3MonthsStart, thisMonthEnd)
 			}
 		},
 		{
 			value: 'last-6-months',
 			label: 'Last 6 Months',
 			period: {
-				startDate: formatDate(last6MonthsStart),
-				endDate: formatDate(thisMonthEnd),
-				label: `${last6MonthsStart.toLocaleDateString('en-US', { month: 'short' })} - ${thisMonthEnd.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
+				startDate: toDateString(last6MonthsStart),
+				endDate: toDateString(thisMonthEnd),
+				label: formatDateRange(last6MonthsStart, thisMonthEnd)
 			}
 		},
 		{
 			value: 'this-year',
 			label: 'This Year',
 			period: {
-				startDate: formatDate(thisYearStart),
-				endDate: formatDate(thisYearEnd),
+				startDate: toDateString(thisYearStart),
+				endDate: toDateString(thisYearEnd),
 				label: today.getFullYear().toString()
 			}
 		}
@@ -204,7 +209,7 @@ export async function getMonthlyComparison(
 		const date = new Date(year, m - 1);
 		return {
 			month,
-			label: date.toLocaleDateString('en-US', { month: 'short' }),
+			label: formatShortMonth(date, 'en-US'),
 			income: data.income,
 			expense: data.expense,
 			netFlow: data.income - data.expense

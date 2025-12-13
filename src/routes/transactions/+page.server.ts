@@ -8,6 +8,7 @@ import {
 	createTransactionSchema,
 	updateTransactionSchema
 } from '$lib/features/transactions/schema';
+import { getTodayString } from '$lib/utils/date';
 import type { TransactionFilter } from '$lib/features/transactions/types';
 
 export const load: PageServerLoad = async ({ url }) => {
@@ -35,7 +36,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	]);
 
 	const form = await superValidate(
-		{ date: new Date().toISOString().split('T')[0] },
+		{ date: getTodayString() },
 		zod4(createTransactionSchema),
 		{ errors: false }
 	);

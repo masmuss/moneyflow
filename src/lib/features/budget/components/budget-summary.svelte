@@ -34,7 +34,7 @@
 				<p class="text-muted-foreground text-sm">Remaining</p>
 				<p
 					class="text-lg font-semibold"
-					class:text-red-500={summary.totalRemaining < 0}
+					class:text-destructive={summary.totalRemaining < 0}
 					class:text-green-500={summary.totalRemaining >= 0}
 				>
 					{formatIDR(summary.totalRemaining)}
@@ -55,7 +55,7 @@
 				</span>
 				<span
 					class="font-medium"
-					class:text-red-500={summary.percentage > 100}
+					class:text-destructive={summary.percentage > 100}
 					class:text-amber-500={summary.percentage >= 80 && summary.percentage <= 100}
 					class:text-green-500={summary.percentage < 80}
 				>

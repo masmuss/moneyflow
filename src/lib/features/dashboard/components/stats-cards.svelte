@@ -42,10 +42,10 @@
 	<Card.Root>
 		<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 			<Card.Title class="text-sm font-medium">Expense This Month</Card.Title>
-			<TrendingDown class="h-4 w-4 text-red-500" />
+			<TrendingDown class="h-4 w-4 text-destructive" />
 		</Card.Header>
 		<Card.Content>
-			<div class="text-2xl font-bold text-red-600 dark:text-red-400">
+			<div class="text-2xl font-bold text-destructive">
 				-{formatIDR(stats.expenseThisMonth)}
 			</div>
 			<p class="text-muted-foreground text-xs">
@@ -64,7 +64,7 @@
 			<div
 				class="text-2xl font-bold {stats.netThisMonth >= 0
 					? 'text-green-600 dark:text-green-400'
-					: 'text-red-600 dark:text-red-400'}"
+					: 'text-destructive'}"
 			>
 				{stats.netThisMonth >= 0 ? '+' : ''}{formatIDR(stats.netThisMonth)}
 			</div>

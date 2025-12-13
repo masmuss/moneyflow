@@ -148,7 +148,7 @@
 						</button>
 					{/each}
 				</div>
-				<input type="hidden" name="color" bind:value={$data.color} />
+				<input type="hidden" name={props.name} bind:value={$data.color} />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />

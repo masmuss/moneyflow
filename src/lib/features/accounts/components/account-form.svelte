@@ -2,7 +2,6 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Form from '$lib/components/ui/form';
-	import * as InputGroup from '$lib/components/ui/input-group';
 	import * as Select from '$lib/components/ui/select';
 	import {
 		createAccountSchema,
@@ -17,8 +16,8 @@
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
-	import { formatIDRInput, parseIDRInput } from '$lib/utils/currency';
 	import { untrack } from 'svelte';
+	import CurrencyInput from '@/components/ui/currency-input/currency-input.svelte';
 
 	type CreateFormData = SuperValidated<Infer<CreateAccountSchema>>;
 	type UpdateFormData = SuperValidated<Infer<UpdateAccountSchema>>;
@@ -52,16 +51,6 @@
 	);
 
 	const { form: data, enhance, delayed } = form;
-
-	// Track the display value for balance input
-	let displayBalance = $state(formatIDRInput(untrack(() => formData.data.balance) || 0));
-
-	function handleBalanceInput(e: Event) {
-		const input = e.target as HTMLInputElement;
-		const rawValue = parseIDRInput(input.value);
-		$data.balance = rawValue;
-		displayBalance = formatIDRInput(rawValue);
-	}
 </script>
 
 <form
@@ -107,21 +96,9 @@
 
 	<Form.Field {form} name="balance">
 		<Form.Control>
-			{#snippet children()}
+			{#snippet children({ props })}
 				<Form.Label>Initial Balance</Form.Label>
-				<InputGroup.Root>
-					<InputGroup.Addon>
-						<InputGroup.Text>Rp</InputGroup.Text>
-					</InputGroup.Addon>
-					<InputGroup.Input
-						type="text"
-						value={displayBalance}
-						oninput={handleBalanceInput}
-						inputmode="numeric"
-						placeholder="0"
-					/>
-				</InputGroup.Root>
-				<input type="hidden" name="balance" value={$data.balance} />
+				<CurrencyInput bind:value={$data.balance} name={props.name} />
 			{/snippet}
 		</Form.Control>
 		<Form.Description>Enter amount in Rupiah (e.g., 10.000 for Rp 10.000)</Form.Description>

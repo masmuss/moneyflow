@@ -65,7 +65,7 @@
 				<div class="flex justify-between text-sm">
 					<span class="text-muted-foreground">
 						{#if budget.isOverBudget}
-							<span class="font-medium text-red-500">
+							<span class="font-medium text-destructive">
 								Over budget by {formatIDR(Math.abs(budget.remaining))}
 							</span>
 						{:else}
@@ -74,7 +74,7 @@
 					</span>
 					<span
 						class="font-medium"
-						class:text-red-500={budget.isOverBudget}
+						class:text-destructive={budget.isOverBudget}
 						class:text-amber-500={!budget.isOverBudget && budget.percentage >= 80}
 						class:text-green-500={!budget.isOverBudget && budget.percentage < 80}
 					>

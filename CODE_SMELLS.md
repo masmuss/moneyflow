@@ -66,7 +66,7 @@ export async function updateTransaction(id: string, data: Partial<CreateTransact
 
 ## 🟡 MEDIUM SEVERITY ISSUES
 
-### 4. Duplicated Code: Form Edit Components Pattern
+### 4. Duplicated Code: Form Edit Components Pattern (DONE)
 
 - **Files**:
   - `src/lib/features/accounts/components/account-form-edit.svelte`
@@ -97,7 +97,7 @@ type Props<T> = {
 
 ---
 
-### 5. Duplicated Code: Delete Dialog Components
+### 5. Duplicated Code: Delete Dialog Components (DONE)
 
 - **Files**:
   - `src/lib/features/accounts/components/account-delete-dialog.svelte`

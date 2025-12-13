@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import DeleteConfirmDialog from '$lib/components/wrapper/delete-confirm-dialog.svelte';
 
 	let {
-		open = false,
+		open = $bindable(false),
 		accountName = '',
 		onConfirm,
 		onCancel
@@ -14,29 +13,18 @@
 		onCancel?: () => void;
 	} = $props();
 
-	let isOpen = $derived(open);
-
-	function handleConfirm() {
-		onConfirm?.();
-	}
-
-	function handleCancel() {
-		onCancel?.();
+	function handleOpenChange(value: boolean) {
+		if (!value) {
+			onCancel?.();
+		}
 	}
 </script>
 
-<AlertDialog.Root bind:open={isOpen}>
-	<AlertDialog.Content>
-		<AlertDialog.Header>
-			<AlertDialog.Title>Delete Account</AlertDialog.Title>
-			<AlertDialog.Description>
-				Are you sure you want to delete <strong>{accountName}</strong>? This action cannot be
-				undone.
-			</AlertDialog.Description>
-		</AlertDialog.Header>
-		<AlertDialog.Footer>
-			<AlertDialog.Cancel onclick={handleCancel}>Cancel</AlertDialog.Cancel>
-			<Button variant="destructive" onclick={handleConfirm}>Delete</Button>
-		</AlertDialog.Footer>
-	</AlertDialog.Content>
-</AlertDialog.Root>
+<DeleteConfirmDialog
+	bind:open
+	title="Delete Account"
+	onConfirm={() => onConfirm?.()}
+	onOpenChange={handleOpenChange}
+>
+	Are you sure you want to delete <strong>{accountName}</strong>? This action cannot be undone.
+</DeleteConfirmDialog>

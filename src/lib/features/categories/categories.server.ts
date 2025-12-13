@@ -24,7 +24,7 @@ export async function createCategory(data: CreateCategory) {
 		.insert(categories)
 		.values({ ...data, isActive: true })
 		.returning();
-	return result[0];
+	return result[0] ?? null;
 }
 
 export async function updateCategory(id: string, userId: string, data: Partial<CreateCategory>) {
@@ -36,7 +36,7 @@ export async function updateCategory(id: string, userId: string, data: Partial<C
 		})
 		.where(and(eq(categories.id, id), eq(categories.userId, userId)))
 		.returning();
-	return result[0];
+	return result[0] ?? null;
 }
 
 export async function deleteCategory(id: string, userId: string) {
@@ -49,7 +49,7 @@ export async function deleteCategory(id: string, userId: string) {
 		.where(and(eq(categories.id, id), eq(categories.userId, userId)))
 		.returning();
 
-	return result[0];
+	return result[0] ?? null;
 }
 
 export async function getCategoriesByType(userId: string, type: 'income' | 'expense') {

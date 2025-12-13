@@ -257,31 +257,19 @@ user: {
 
 ---
 
-### 15. Missing Null/Undefined Checks
+### 15. Missing Null/Undefined Checks (DONE)
 
 Some `getById` functions return `result[0]` without null check.
 
-**Suggested Fix**: Add consistent null handling:
-
-```typescript
-export async function getAccountById(id: string) {
-    const result = await db.select()...
-    return result[0] ?? null;
-}
-```
+**Fixed**: Added `?? null` to all return statements in `categories.server.ts`.
 
 ---
 
-### 16. Date Handling Without Timezone Consideration
+### 16. Date Handling Without Timezone Consideration (PARTIAL)
 
 - **File**: `src/lib/features/reports/reports.server.ts`
 
-```typescript
-const today = new Date(); // Server's timezone
-const formatDate = (d: Date) => d.toISOString().split('T')[0]; // UTC
-```
-
-**Suggested Fix**: Use consistent timezone handling. Consider using `date-fns` or `dayjs` for timezone-aware operations.
+**Note**: Created centralized `date.ts` utilities. Full timezone handling would require `date-fns-tz` or similar library.
 
 ---
 
@@ -314,19 +302,11 @@ GROUP BY month, type
 
 ---
 
-### 18. Inconsistent Error Response Format
+### 18. Inconsistent Error Response Format (DONE)
 
 - **Files**: Various `+page.server.ts` files
 
-```typescript
-// accounts/+page.server.ts
-return fail(500, { form, message: 'Failed to create account' });
-
-// transactions/+page.server.ts
-return fail(500, { form, error: 'Failed to create transaction' });
-```
-
-**Suggested Fix**: Standardize error response format - use either `message` or `error` consistently.
+**Fixed**: Standardized to use `error` property consistently (was using `message` in accounts).
 
 ---
 

@@ -37,7 +37,7 @@ export const actions: Actions = {
 			return { form };
 		} catch (error) {
 			console.error('Failed to create account:', error);
-			return fail(500, { form, message: 'Failed to create account' });
+			return fail(500, { form, error: 'Failed to create account' });
 		}
 	},
 	update: async ({ request }) => {
@@ -59,7 +59,7 @@ export const actions: Actions = {
 			return { form };
 		} catch (error) {
 			console.error('Failed to update account:', error);
-			return fail(500, { form, message: 'Failed to update account' });
+			return fail(500, { form, error: 'Failed to update account' });
 		}
 	},
 	delete: async ({ request }) => {
@@ -69,7 +69,7 @@ export const actions: Actions = {
 		const id = formData.get('id') as string;
 
 		if (!id) {
-			return fail(400, { message: 'Account ID is required' });
+			return fail(400, { error: 'Account ID is required' });
 		}
 
 		try {
@@ -77,7 +77,7 @@ export const actions: Actions = {
 			return { success: true };
 		} catch (error) {
 			console.error('Failed to delete account:', error);
-			return fail(500, { message: 'Failed to delete account' });
+			return fail(500, { error: 'Failed to delete account' });
 		}
 	}
 };

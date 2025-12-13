@@ -140,31 +140,57 @@ export async function getRecentTransactions(
 export async function getMonthlyTrend(userId: string, months: number = 6): Promise<MonthlyTrend[]> {
 	const now = new Date();
 
-	// Generate month list and fetch all data in parallel
-	const monthsData = Array.from({ length: months }, (_, i) => {
+	const startDate = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
+	const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+	const firstDay = toDateString(startDate);
+	const lastDay = toDateString(endDate);
+
+	const result = await db
+		.select({
+			month: sql<string>`TO_CHAR(${transactions.date}::date, 'YYYY-MM')`,
+			type: transactions.type,
+			total: sql<number>`COALESCE(SUM(${transactions.amount}), 0)`
+		})
+		.from(transactions)
+		.innerJoin(accounts, eq(transactions.accountId, accounts.id))
+		.where(
+			and(
+				eq(accounts.userId, userId),
+				gte(transactions.date, firstDay),
+				lte(transactions.date, lastDay)
+			)
+		)
+		.groupBy(sql`TO_CHAR(${transactions.date}::date, 'YYYY-MM')`, transactions.type);
+
+	const monthlyData = new Map<string, { income: number; expense: number }>();
+
+	for (const row of result) {
+		if (!monthlyData.has(row.month)) {
+			monthlyData.set(row.month, { income: 0, expense: 0 });
+		}
+		const data = monthlyData.get(row.month)!;
+		if (row.type === 'income') {
+			data.income = Number(row.total);
+		} else {
+			data.expense = Number(row.total);
+		}
+	}
+
+	const trends: MonthlyTrend[] = Array.from({ length: months }, (_, i) => {
 		const date = new Date(now.getFullYear(), now.getMonth() - (months - 1 - i), 1);
-		const { firstDay, lastDay } = getMonthRange(date);
+		const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+		const monthLabel = formatShortMonth(date);
+
+		const data = monthlyData.get(month) || { income: 0, expense: 0 };
 
 		return {
-			date,
-			firstDay,
-			lastDay,
-			month: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`,
-			monthLabel: formatShortMonth(date)
+			month,
+			monthLabel,
+			income: data.income,
+			expense: data.expense
 		};
 	});
 
-	// Fetch all income/expense data in parallel
-	const results = await Promise.all(
-		monthsData.map(async ({ firstDay, lastDay, month, monthLabel }) => {
-			const [income, expense] = await Promise.all([
-				getTransactionSum(userId, 'income', firstDay, lastDay),
-				getTransactionSum(userId, 'expense', firstDay, lastDay)
-			]);
-
-			return { month, monthLabel, income, expense };
-		})
-	);
-
-	return results;
+	return trends;
 }

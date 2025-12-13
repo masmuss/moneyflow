@@ -273,32 +273,22 @@ Some `getById` functions return `result[0]` without null check.
 
 ---
 
-### 17. Potential N+1 Query Pattern
+### 17. Potential N+1 Query Pattern (DONE)
 
 - **File**: `src/lib/features/dashboard/dashboard.server.ts`
 
+**Fixed**: Refactored `getMonthlyTrend()` from N+1 pattern (24 queries for 12 months) to a single aggregated query with `GROUP BY`:
+
 ```typescript
-const results = await Promise.all(
-    monthsData.map(async ({ firstDay, lastDay }) => {
-        const [income, expense] = await Promise.all([
-            getTransactionSum(userId, 'income', firstDay, lastDay),
-            getTransactionSum(userId, 'expense', firstDay, lastDay)
-        ]);
+const result = await db.select({
+    month: sql`TO_CHAR(${transactions.date}::date, 'YYYY-MM')`,
+    type: transactions.type,
+    total: sql`COALESCE(SUM(${transactions.amount}), 0)`
+}).from(transactions)
+.groupBy(sql`TO_CHAR(${transactions.date}::date, 'YYYY-MM')`, transactions.type);
 ```
 
-**Issue**: For 12 months, this makes 24 DB queries.
-
-**Suggested Fix**: Use a single aggregated query with GROUP BY:
-
-```sql
-SELECT
-  DATE_TRUNC('month', date) as month,
-  type,
-  SUM(amount) as total
-FROM transactions
-WHERE date BETWEEN $1 AND $2
-GROUP BY month, type
-```
+**Performance**: 24 queries → 1 query
 
 ---
 

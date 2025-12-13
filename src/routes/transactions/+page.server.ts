@@ -35,11 +35,9 @@ export const load: PageServerLoad = async ({ url }) => {
 		repo.accounts.get()
 	]);
 
-	const form = await superValidate(
-		{ date: getTodayString() },
-		zod4(createTransactionSchema),
-		{ errors: false }
-	);
+	const form = await superValidate({ date: getTodayString() }, zod4(createTransactionSchema), {
+		errors: false
+	});
 
 	return {
 		transactions,

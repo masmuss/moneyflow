@@ -4,7 +4,7 @@
  * @example toDateString(new Date()) // "2024-12-13"
  */
 export function toDateString(date: Date): string {
-    return date.toISOString().split('T')[0];
+	return date.toISOString().split('T')[0];
 }
 
 /**
@@ -14,7 +14,7 @@ export function toDateString(date: Date): string {
  * @param locale - Locale for formatting (default: 'id-ID')
  */
 export function formatMonthYear(date: Date, locale: string = 'id-ID'): string {
-    return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+	return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
 }
 
 /**
@@ -24,7 +24,7 @@ export function formatMonthYear(date: Date, locale: string = 'id-ID'): string {
  * @param locale - Locale for formatting (default: 'id-ID')
  */
 export function formatShortMonth(date: Date, locale: string = 'id-ID'): string {
-    return date.toLocaleDateString(locale, { month: 'short' });
+	return date.toLocaleDateString(locale, { month: 'short' });
 }
 
 /**
@@ -34,7 +34,7 @@ export function formatShortMonth(date: Date, locale: string = 'id-ID'): string {
  * @param locale - Locale for formatting (default: 'id-ID')
  */
 export function formatShortDate(date: Date, locale: string = 'id-ID'): string {
-    return date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+	return date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
 }
 
 /**
@@ -42,9 +42,9 @@ export function formatShortDate(date: Date, locale: string = 'id-ID'): string {
  * Used for report period labels
  */
 export function formatDateRange(startDate: Date, endDate: Date, locale: string = 'en-US'): string {
-    const startStr = startDate.toLocaleDateString(locale, { month: 'short' });
-    const endStr = endDate.toLocaleDateString(locale, { month: 'short', year: 'numeric' });
-    return `${startStr} - ${endStr}`;
+	const startStr = startDate.toLocaleDateString(locale, { month: 'short' });
+	const endStr = endDate.toLocaleDateString(locale, { month: 'short', year: 'numeric' });
+	return `${startStr} - ${endStr}`;
 }
 
 /**
@@ -52,5 +52,5 @@ export function formatDateRange(startDate: Date, endDate: Date, locale: string =
  * Convenience function for common use case
  */
 export function getTodayString(): string {
-    return toDateString(new Date());
+	return toDateString(new Date());
 }

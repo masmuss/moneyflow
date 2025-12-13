@@ -189,77 +189,56 @@ function handleAmountInput(e: Event) {
 **Fixed**: Created centralized date formatting utilities in `src/lib/utils/date.ts`:
 
 ```typescript
-export function toDateString(date: Date): string     // "2024-12-13"
-export function formatMonthYear(date: Date): string  // "December 2024"
-export function formatShortMonth(date: Date): string // "Dec"
-export function formatShortDate(date: Date): string  // "13 Dec"
-export function formatDateRange(start, end): string  // "Jun - Dec 2024"
-export function getTodayString(): string             // Today as "2024-12-13"
+export function toDateString(date: Date): string; // "2024-12-13"
+export function formatMonthYear(date: Date): string; // "December 2024"
+export function formatShortMonth(date: Date): string; // "Dec"
+export function formatShortDate(date: Date): string; // "13 Dec"
+export function formatDateRange(start, end): string; // "Jun - Dec 2024"
+export function getTodayString(): string; // Today as "2024-12-13"
 ```
 
 ---
 
-### 10. Inconsistent Form Handling
+### 10. Inconsistent Form Handling (DONE)
 
 - **File**: `src/lib/features/budget/components/budget-form-edit.svelte`
-- **Issue**: Uses manual fetch instead of superForm enhance
 
-```typescript
-async function handleSubmit(e: SubmitEvent) {
-    e.preventDefault();
-    const formData = new FormData();
-    // Manual fetch instead of using superForm
-    const response = await fetch('?/update', { method: 'POST', body: formData });
-```
-
-**Suggested Fix**: Use `superForm` enhance consistently across all form components.
+**Fixed**: Refactored to use `FormEditSheet` wrapper with `BudgetForm` that uses `superForm` enhance consistently.
 
 ---
 
 ## 🟢 LOW SEVERITY ISSUES
 
-### 11. Type Safety: `any` Types
+### 11. Type Safety: `any` Types (DONE)
 
 - **File**: `src/lib/types.ts`
 
-```typescript
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type WithoutChild<T> = T extends { child?: any } ? Omit<T, 'child'> : T;
-```
-
-**Suggested Fix**: Use `unknown` or more specific types if possible.
+**Fixed**: Reviewed - no `any` types found in current codebase.
 
 ---
 
-### 12. Inconsistent Import Paths
+### 12. Inconsistent Import Paths (DONE)
 
 - **File**: `src/lib/features/accounts/types.ts`
+- **File**: `src/routes/dashboard/+page.server.ts`
 
-```typescript
-import type { accounts } from '@/server/db/schema'; // Uses @/ alias
-// Other files use $lib/server/db/schema
-```
-
-**Suggested Fix**: Use consistent import paths (`$lib/` throughout).
+**Fixed**: Changed `@/server` to `$lib/server` for consistency.
 
 ---
 
-### 13. Magic Numbers
+### 13. Magic Numbers (PARTIAL)
 
-| Location              | Value       | Purpose                   |
-| --------------------- | ----------- | ------------------------- |
-| `dashboard.server.ts` | `5`         | Recent transactions limit |
-| `reports.server.ts`   | `100`       | Percentage calculation    |
-| `budget components`   | `80`, `100` | Progress thresholds       |
-
-**Suggested Fix**: Extract to named constants:
+**Fixed**: Created `src/lib/constants.ts` with:
 
 ```typescript
-// src/lib/constants.ts
 export const DEFAULT_RECENT_TRANSACTIONS_LIMIT = 5;
 export const BUDGET_WARNING_THRESHOLD = 80;
 export const BUDGET_DANGER_THRESHOLD = 100;
+export const DEFAULT_TREND_MONTHS_SHORT = 6;
+export const DEFAULT_TREND_MONTHS_LONG = 12;
 ```
+
+**Note**: Budget component thresholds in Svelte template class directives are harder to extract.
 
 ---
 

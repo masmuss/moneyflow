@@ -10,5 +10,5 @@ export const updateBudgetSchema = createBudgetSchema.extend({
 	id: z.uuid()
 });
 
-export type CreateBudgetInput = z.infer<typeof createBudgetSchema>;
-export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>;
+export type CreateBudgetSchema = typeof createBudgetSchema;
+export type UpdateBudgetSchema = typeof updateBudgetSchema;

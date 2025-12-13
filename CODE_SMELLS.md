@@ -1,0 +1,386 @@
+# Code Smell Analysis Report - Moneyflow
+
+> Generated: December 10, 2025
+
+## Summary
+
+| Severity  | Count  |
+| --------- | ------ |
+| 🔴 High   | 3      |
+| 🟡 Medium | 7      |
+| 🟢 Low    | 8      |
+| **Total** | **18** |
+
+---
+
+## 🔴 HIGH SEVERITY ISSUES
+
+### 1. Security Issue: Hardcoded User ID
+
+- **File**: `src/lib/server/auth.ts`
+- **Lines**: 6-13
+- **Issue Type**: Hardcoded values / Security risk
+
+```typescript
+export const getCurrentUserId = (): string => {
+	// Temporary: hard-coded user ID
+	// In production, extract from session/JWT
+	return 'user-1';
+};
+```
+
+**Suggested Fix**: Implement proper authentication (Lucia Auth, Better Auth, or similar). This is a critical security issue as all users share the same ID.
+
+---
+
+### 2. Inconsistent User ID Handling in Server Functions (DONE)
+
+- **Files**:
+  - `src/lib/features/reports/reports.server.ts` - NO userId filtering
+  - `src/lib/features/categories/categories.server.ts` - NO userId filtering
+  - `src/lib/features/transactions/transactions.server.ts` - Uses `getCurrentUserId()` internally
+  - `src/lib/features/accounts/accounts.server.ts` - Accepts `userId` as parameter
+  - `src/lib/features/dashboard/dashboard.server.ts` - Accepts `userId` as parameter
+
+**Issue Type**: Inconsistent patterns / Security risk
+
+**Suggested Fix**: Standardize userId handling - either always pass as parameter or always get from auth internally. The reports and categories don't filter by userId at all, which could be a data leak in multi-user scenario.
+
+---
+
+### 3. Missing Error Handling in Transaction Balance Updates (DONE)
+
+- **File**: `src/lib/features/transactions/transactions.server.ts`
+- **Lines**: 100-140
+- **Issue Type**: Missing error handling
+
+```typescript
+export async function updateTransaction(id: string, data: Partial<CreateTransaction>) {
+    return await db.transaction(async (tx) => {
+        const newAmount = data.amount || oldTransaction.amount; // ⚠️ Could be 0
+```
+
+**Suggested Fix**: Add validation for amount - `0` is falsy but could be intentional. Use `data.amount ?? oldTransaction.amount` instead.
+
+---
+
+## 🟡 MEDIUM SEVERITY ISSUES
+
+### 4. Duplicated Code: Form Edit Components Pattern
+
+- **Files**:
+  - `src/lib/features/accounts/components/account-form-edit.svelte`
+  - `src/lib/features/categories/components/category-form-edit.svelte`
+  - `src/lib/features/transactions/components/transaction-form-edit.svelte`
+  - `src/lib/features/budget/components/budget-form-edit.svelte`
+
+**Issue Type**: Duplicated code
+
+**Observation**: All files have nearly identical structure:
+
+- Same loading state pattern
+- Same `$effect` for open/close handling
+- Same Sheet wrapper
+- Same `formKey` pattern for re-creation
+
+**Suggested Fix**: Create a generic `FormEditSheet<T>` component:
+
+```typescript
+type Props<T> = {
+	open: boolean;
+	title: string;
+	description: string;
+	loadData: () => Promise<T>;
+	FormComponent: Component;
+};
+```
+
+---
+
+### 5. Duplicated Code: Delete Dialog Components
+
+- **Files**:
+  - `src/lib/features/accounts/components/account-delete-dialog.svelte`
+  - `src/lib/features/categories/components/category-delete-dialog.svelte`
+  - `src/lib/features/transactions/components/transaction-delete-dialog.svelte`
+  - `src/lib/features/budget/components/budget-delete-dialog.svelte`
+
+**Issue Type**: Duplicated code (~90% identical)
+
+**Suggested Fix**: Create a single generic `DeleteConfirmDialog` component:
+
+```typescript
+type Props = {
+	open: boolean;
+	title: string;
+	description: string;
+	itemId: string;
+	actionUrl: string;
+	onSuccess?: () => void;
+};
+```
+
+---
+
+### 6. Duplicated Chart Components
+
+- **Files**:
+  - `src/lib/features/dashboard/components/monthly-trend-chart.svelte` (117 lines)
+  - `src/lib/features/reports/components/monthly-trend-chart.svelte` (100 lines)
+
+**Issue Type**: Duplicated code (~70% identical)
+
+**Suggested Fix**: Extract common chart configuration and rendering logic into a shared `BarChartCard` component in `src/lib/components/`.
+
+---
+
+### 7. Duplicated Currency Input Handling
+
+- **Files**:
+  - `src/lib/features/transactions/components/transaction-form.svelte`
+  - `src/lib/features/transactions/components/transaction-form-edit.svelte`
+  - `src/lib/features/budget/components/budget-form.svelte`
+  - `src/lib/features/budget/components/budget-form-edit.svelte`
+  - `src/lib/components/quick-transaction.svelte`
+
+**Issue Type**: Duplicated code
+
+**Code pattern repeated**:
+
+```typescript
+function handleAmountInput(e: Event) {
+	const input = e.target as HTMLInputElement;
+	const rawValue = parseIDRInput(input.value);
+	$data.amount = rawValue;
+	displayAmount = formatIDRInput(rawValue);
+}
+```
+
+**Suggested Fix**: Create a `CurrencyInput` component that encapsulates formatting logic:
+
+```svelte
+<CurrencyInput bind:value={$data.amount} />
+```
+
+---
+
+### 8. Long Components (>100 lines)
+
+| File                                   | Lines |
+| -------------------------------------- | ----- |
+| `transaction-form.svelte`              | 235   |
+| `transaction-form-edit.svelte`         | 248   |
+| `budget-form.svelte`                   | 156   |
+| `budget-form-edit.svelte`              | 158   |
+| `dashboard/monthly-trend-chart.svelte` | 117   |
+| `transaction-filter.svelte`            | 200+  |
+
+**Suggested Fix**: Break down into smaller, focused components. Extract form fields into reusable components.
+
+---
+
+### 9. Magic Strings in Date Formatting
+
+- **Files**:
+  - `src/lib/features/reports/reports.server.ts`
+  - `src/lib/features/dashboard/dashboard.server.ts`
+  - Various components
+
+**Issue Type**: Inconsistent date formatting
+
+```typescript
+// Multiple places use these patterns inconsistently:
+date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+date.toLocaleDateString('id-ID', { month: 'short' });
+toISOString().split('T')[0];
+```
+
+**Suggested Fix**: Create centralized date formatting utilities in `src/lib/utils/date.ts`:
+
+```typescript
+export const formatMonthYear = (date: Date) => ...
+export const formatShortDate = (date: Date) => ...
+export const toDateString = (date: Date) => ...
+```
+
+---
+
+### 10. Inconsistent Form Handling
+
+- **File**: `src/lib/features/budget/components/budget-form-edit.svelte`
+- **Issue**: Uses manual fetch instead of superForm enhance
+
+```typescript
+async function handleSubmit(e: SubmitEvent) {
+    e.preventDefault();
+    const formData = new FormData();
+    // Manual fetch instead of using superForm
+    const response = await fetch('?/update', { method: 'POST', body: formData });
+```
+
+**Suggested Fix**: Use `superForm` enhance consistently across all form components.
+
+---
+
+## 🟢 LOW SEVERITY ISSUES
+
+### 11. Type Safety: `any` Types
+
+- **File**: `src/lib/types.ts`
+
+```typescript
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type WithoutChild<T> = T extends { child?: any } ? Omit<T, 'child'> : T;
+```
+
+**Suggested Fix**: Use `unknown` or more specific types if possible.
+
+---
+
+### 12. Inconsistent Import Paths
+
+- **File**: `src/lib/features/accounts/types.ts`
+
+```typescript
+import type { accounts } from '@/server/db/schema'; // Uses @/ alias
+// Other files use $lib/server/db/schema
+```
+
+**Suggested Fix**: Use consistent import paths (`$lib/` throughout).
+
+---
+
+### 13. Magic Numbers
+
+| Location              | Value       | Purpose                   |
+| --------------------- | ----------- | ------------------------- |
+| `dashboard.server.ts` | `5`         | Recent transactions limit |
+| `reports.server.ts`   | `100`       | Percentage calculation    |
+| `budget components`   | `80`, `100` | Progress thresholds       |
+
+**Suggested Fix**: Extract to named constants:
+
+```typescript
+// src/lib/constants.ts
+export const DEFAULT_RECENT_TRANSACTIONS_LIMIT = 5;
+export const BUDGET_WARNING_THRESHOLD = 80;
+export const BUDGET_DANGER_THRESHOLD = 100;
+```
+
+---
+
+### 14. Hardcoded Sidebar User Data
+
+- **File**: `src/lib/config.ts`
+
+```typescript
+user: {
+    name: 'User',
+    email: 'user@example.com'
+}
+```
+
+**Suggested Fix**: Pull from authenticated user session after implementing auth.
+
+---
+
+### 15. Missing Null/Undefined Checks
+
+Some `getById` functions return `result[0]` without null check.
+
+**Suggested Fix**: Add consistent null handling:
+
+```typescript
+export async function getAccountById(id: string) {
+    const result = await db.select()...
+    return result[0] ?? null;
+}
+```
+
+---
+
+### 16. Date Handling Without Timezone Consideration
+
+- **File**: `src/lib/features/reports/reports.server.ts`
+
+```typescript
+const today = new Date(); // Server's timezone
+const formatDate = (d: Date) => d.toISOString().split('T')[0]; // UTC
+```
+
+**Suggested Fix**: Use consistent timezone handling. Consider using `date-fns` or `dayjs` for timezone-aware operations.
+
+---
+
+### 17. Potential N+1 Query Pattern
+
+- **File**: `src/lib/features/dashboard/dashboard.server.ts`
+
+```typescript
+const results = await Promise.all(
+    monthsData.map(async ({ firstDay, lastDay }) => {
+        const [income, expense] = await Promise.all([
+            getTransactionSum(userId, 'income', firstDay, lastDay),
+            getTransactionSum(userId, 'expense', firstDay, lastDay)
+        ]);
+```
+
+**Issue**: For 12 months, this makes 24 DB queries.
+
+**Suggested Fix**: Use a single aggregated query with GROUP BY:
+
+```sql
+SELECT
+  DATE_TRUNC('month', date) as month,
+  type,
+  SUM(amount) as total
+FROM transactions
+WHERE date BETWEEN $1 AND $2
+GROUP BY month, type
+```
+
+---
+
+### 18. Inconsistent Error Response Format
+
+- **Files**: Various `+page.server.ts` files
+
+```typescript
+// accounts/+page.server.ts
+return fail(500, { form, message: 'Failed to create account' });
+
+// transactions/+page.server.ts
+return fail(500, { form, error: 'Failed to create transaction' });
+```
+
+**Suggested Fix**: Standardize error response format - use either `message` or `error` consistently.
+
+---
+
+## Refactoring Priority
+
+### 🔥 Immediate (Security)
+
+1. [ ] Implement proper authentication (#1)
+2. [ ] Add userId filtering to reports and categories (#2)
+3. [ ] Fix amount validation in transactions (#3)
+
+### 📦 Short-term (Code Quality)
+
+4. [ ] Create generic `DeleteConfirmDialog` component (#5)
+5. [ ] Create generic `FormEditSheet` component (#4)
+6. [ ] Create `CurrencyInput` component (#7)
+7. [ ] Consolidate chart components (#6)
+
+### 🔧 Medium-term (Performance & Consistency)
+
+8. [ ] Optimize dashboard queries (#17)
+9. [ ] Create date formatting utilities (#9)
+10. [ ] Standardize error response format (#18)
+11. [ ] Extract magic numbers to constants (#13)
+
+### 📝 Low Priority (Nice to Have)
+
+12. [ ] Fix inconsistent import paths (#12)
+13. [ ] Add null checks to getById functions (#15)
+14. [ ] Improve type safety (#11)

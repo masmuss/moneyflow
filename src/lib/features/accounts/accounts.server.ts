@@ -7,6 +7,15 @@ export const getAccounts = async (userId: string) => {
 	return await db.select().from(accounts).where(eq(accounts.userId, userId));
 };
 
+export const getAccountById = async (id: string, userId: string) => {
+	const result = await db
+		.select()
+		.from(accounts)
+		.where(and(eq(accounts.id, id), eq(accounts.userId, userId)));
+
+	return result[0] ?? null;
+};
+
 export const createAccount = async (data: CreateAccount) => {
 	const query = await db.insert(accounts).values(data).returning();
 

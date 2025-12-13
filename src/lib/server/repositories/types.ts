@@ -18,6 +18,7 @@ type BudgetInput = {
 
 type AccountRepository = {
 	get: () => Promise<Account[]>;
+	getById: (id: string) => Promise<Account | null>;
 	create: (data: WithoutUserId<CreateAccount>) => Promise<Account>;
 	update: (id: string, data: Partial<WithoutUserId<CreateAccount>>) => Promise<Account>;
 	delete: (id: string) => Promise<void>;

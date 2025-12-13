@@ -4,46 +4,60 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import type { Category } from '$lib/features/categories/types';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { CreateBudgetInput } from '../schema';
+	import type { SuperValidated, Infer } from 'sveltekit-superforms';
+	import {
+		createBudgetSchema,
+		updateBudgetSchema,
+		type CreateBudgetSchema,
+		type UpdateBudgetSchema
+	} from '../schema';
 	import { superForm } from 'sveltekit-superforms';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
-	import { invalidateAll } from '$app/navigation';
 	import CategoryIcon from '$lib/features/categories/components/category-icon.svelte';
+	import { untrack } from 'svelte';
+
+	type CreateFormData = SuperValidated<Infer<CreateBudgetSchema>>;
+	type UpdateFormData = SuperValidated<Infer<UpdateBudgetSchema>>;
 
 	type Props = {
 		categories: Category[];
-		form: SuperValidated<CreateBudgetInput>;
+		form: CreateFormData | UpdateFormData;
 		month: string;
-		existingCategoryIds: string[];
+		existingCategoryIds?: string[];
+		mode?: 'create' | 'update';
 		onSuccess?: () => void;
 	};
 
-	let { categories, form: formData, month, existingCategoryIds, onSuccess }: Props = $props();
+	let {
+		categories,
+		form: formData,
+		month,
+		existingCategoryIds = [],
+		mode = 'create',
+		onSuccess
+	}: Props = $props();
 
-	// Filter out categories that already have budgets
+	// Filter out categories that already have budgets (only for create mode)
 	const availableCategories = $derived(
-		categories.filter((c) => c.type === 'expense' && !existingCategoryIds.includes(c.id))
+		categories.filter(
+			(c) => c.type === 'expense' && (mode === 'update' || !existingCategoryIds.includes(c.id))
+		)
 	);
 
-	const form = superForm(
-		{
-			get data() {
-				return formData;
-			}
-		}.data,
-		{
-			onResult: ({ result }) => {
-				if (result.type === 'success') {
-					toast.success('Budget created successfully!');
+	const form = untrack(() =>
+		superForm(formData, {
+			validators: mode === 'create' ? zod4(createBudgetSchema) : zod4(updateBudgetSchema),
+			onUpdated: ({ form: updatedForm }) => {
+				if (updatedForm.valid) {
+					const action = mode === 'create' ? 'created' : 'updated';
+					toast.success(`Budget ${action} successfully!`);
 					onSuccess?.();
-					invalidateAll();
+				} else {
+					toast.error(`Failed to ${mode} budget. Please check the form.`);
 				}
-			},
-			onError: ({ result }) => {
-				toast.error(result.error?.message || 'Failed to create budget');
 			}
-		}
+		})
 	);
 
 	const { form: formStore, enhance, errors } = form;
@@ -54,7 +68,11 @@
 	});
 
 	// Format amount for display
-	let displayAmount = $state('');
+	let displayAmount = $state(
+		untrack(() => formData.data.amount) > 0
+			? untrack(() => formData.data.amount).toLocaleString('id-ID')
+			: ''
+	);
 
 	function handleAmountInput(e: Event) {
 		const input = e.target as HTMLInputElement;
@@ -63,16 +81,12 @@
 		$formStore.amount = numValue;
 		displayAmount = numValue > 0 ? numValue.toLocaleString('id-ID') : '';
 	}
-
-	// Sync display when form value changes externally
-	$effect(() => {
-		if ($formStore.amount && $formStore.amount > 0) {
-			displayAmount = $formStore.amount.toLocaleString('id-ID');
-		}
-	});
 </script>
 
-<form method="POST" action="?/create" use:enhance class="space-y-4">
+<form method="POST" action="?/{mode}" use:enhance class="space-y-4">
+	{#if mode === 'update' && 'id' in $formStore}
+		<input type="hidden" name="id" value={$formStore.id} />
+	{/if}
 	<input type="hidden" name="month" value={month} />
 
 	<div class="space-y-2">
@@ -126,6 +140,8 @@
 	</div>
 
 	<div class="flex gap-2 pt-4">
-		<Button type="submit" class="flex-1">Create Budget</Button>
+		<Button type="submit" class="flex-1">
+			{mode === 'create' ? 'Create Budget' : 'Update Budget'}
+		</Button>
 	</div>
 </form>

@@ -2,6 +2,7 @@ import {
 	createAccount,
 	deleteAccount,
 	getAccounts,
+	getAccountById,
 	updateAccount
 } from '@/features/accounts/accounts.server';
 
@@ -35,6 +36,7 @@ export function createUserRepository(userId: string): UserRepository {
 	return {
 		accounts: {
 			get: () => getAccounts(userId),
+			getById: (id) => getAccountById(id, userId),
 			create: (data) => createAccount({ ...data, userId }),
 			update: (id, data) => updateAccount(id, userId, data),
 			delete: async (id) => {

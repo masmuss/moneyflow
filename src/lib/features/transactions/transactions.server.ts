@@ -56,7 +56,6 @@ export async function getTransactions(
 }
 
 export async function getTransactionById(id: string): Promise<TransactionWithRelations | null> {
-
 	const result = await db
 		.select({
 			id: transactions.id,

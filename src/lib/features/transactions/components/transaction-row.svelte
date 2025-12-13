@@ -35,7 +35,7 @@
 		<div
 			class="flex h-10 w-10 items-center justify-center rounded-full {transaction.type === 'income'
 				? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
-				: 'bg-red-100 text-destructive dark:bg-destructive/30'}"
+				: 'dark:bg-destructive/30 bg-destructive/10 text-destructive'}"
 		>
 			{#if transaction.type === 'income'}
 				<CircleArrowUp class="h-5 w-5" />

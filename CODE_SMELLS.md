@@ -122,7 +122,7 @@ type Props = {
 
 ---
 
-### 6. Duplicated Chart Components
+### 6. Duplicated Chart Components (DONE)
 
 - **Files**:
   - `src/lib/features/dashboard/components/monthly-trend-chart.svelte` (117 lines)

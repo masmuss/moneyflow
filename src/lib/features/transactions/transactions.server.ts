@@ -3,6 +3,29 @@ import { transactions, accounts, categories } from '$lib/server/db/schema';
 import { eq, desc, and, gte, lte, sql } from 'drizzle-orm';
 import type { CreateTransaction, TransactionWithRelations, TransactionFilter } from './types';
 
+const transactionSelectFields = {
+	id: transactions.id,
+	type: transactions.type,
+	userId: transactions.userId,
+	categoryId: transactions.categoryId,
+	accountId: transactions.accountId,
+	amount: transactions.amount,
+	description: transactions.description,
+	date: transactions.date,
+	createdAt: transactions.createdAt,
+	updatedAt: transactions.updatedAt,
+	category: categories,
+	account: accounts
+};
+
+function buildTransactionQuery() {
+	return db
+		.select(transactionSelectFields)
+		.from(transactions)
+		.leftJoin(categories, eq(transactions.categoryId, categories.id))
+		.innerJoin(accounts, eq(transactions.accountId, accounts.id));
+}
+
 export async function getTransactions(
 	userId: string,
 	filter?: TransactionFilter
@@ -29,25 +52,10 @@ export async function getTransactions(
 		conditions.push(lte(transactions.date, filter.endDate));
 	}
 
-	const query = db
-		.select({
-			id: transactions.id,
-			type: transactions.type,
-			userId: transactions.userId,
-			categoryId: transactions.categoryId,
-			accountId: transactions.accountId,
-			amount: transactions.amount,
-			description: transactions.description,
-			date: transactions.date,
-			createdAt: transactions.createdAt,
-			updatedAt: transactions.updatedAt,
-			category: categories,
-			account: accounts
-		})
-		.from(transactions)
-		.leftJoin(categories, eq(transactions.categoryId, categories.id))
-		.innerJoin(accounts, eq(transactions.accountId, accounts.id))
-		.orderBy(desc(transactions.date), desc(transactions.createdAt));
+	const query = buildTransactionQuery().orderBy(
+		desc(transactions.date),
+		desc(transactions.createdAt)
+	);
 
 	if (conditions.length > 0) {
 		return await query.where(and(eq(transactions.userId, userId), ...conditions));
@@ -60,24 +68,7 @@ export async function getTransactionById(
 	id: string,
 	userId: string
 ): Promise<TransactionWithRelations | null> {
-	const result = await db
-		.select({
-			id: transactions.id,
-			type: transactions.type,
-			userId: transactions.userId,
-			categoryId: transactions.categoryId,
-			accountId: transactions.accountId,
-			amount: transactions.amount,
-			description: transactions.description,
-			date: transactions.date,
-			createdAt: transactions.createdAt,
-			updatedAt: transactions.updatedAt,
-			category: categories,
-			account: accounts
-		})
-		.from(transactions)
-		.leftJoin(categories, eq(transactions.categoryId, categories.id))
-		.innerJoin(accounts, eq(transactions.accountId, accounts.id))
+	const result = await buildTransactionQuery()
 		.where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
 		.limit(1);
 

@@ -1,12 +1,12 @@
-import type { Account, CreateAccount } from '@/features/accounts/types';
-import type { Category, CreateCategory } from '@/features/categories/types';
+import type { Account, CreateAccount } from '$lib/features/accounts/types';
+import type { Category, CreateCategory } from '$lib/features/categories/types';
 import type {
 	CreateTransaction,
 	Transaction,
 	TransactionWithRelations,
 	TransactionFilter
-} from '@/features/transactions/types';
-import type { Budget, MonthlyBudgetSummary } from '@/features/budget/types';
+} from '$lib/features/transactions/types';
+import type { Budget, MonthlyBudgetSummary } from '$lib/features/budget/types';
 
 type WithoutUserId<T> = Omit<T, 'userId'>;
 

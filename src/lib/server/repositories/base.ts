@@ -4,7 +4,7 @@ import {
 	getAccounts,
 	getAccountById,
 	updateAccount
-} from '@/features/accounts/accounts.server';
+} from '$lib/features/accounts/accounts.server';
 
 import {
 	createCategory,
@@ -13,7 +13,7 @@ import {
 	getCategoriesByType,
 	getCategoryById,
 	updateCategory
-} from '@/features/categories/categories.server';
+} from '$lib/features/categories/categories.server';
 
 import {
 	getTransactions,
@@ -21,7 +21,7 @@ import {
 	createTransaction,
 	updateTransaction,
 	deleteTransaction
-} from '@/features/transactions/transactions.server';
+} from '$lib/features/transactions/transactions.server';
 
 import {
 	getBudgetsForMonth,
@@ -29,7 +29,7 @@ import {
 	updateBudget,
 	deleteBudget,
 	copyBudgetsFromPreviousMonth
-} from '@/features/budget/budget.server';
+} from '$lib/features/budget/budget.server';
 import type { UserRepository } from './types';
 
 export function createUserRepository(userId: string): UserRepository {

@@ -1,31 +1,10 @@
 import { db } from '$lib/server/db';
 import { accounts, transactions, categories } from '$lib/server/db/schema';
 import { eq, sql, and, gte, lte, desc } from 'drizzle-orm';
-import { toDateString, formatShortMonth } from '$lib/utils/date';
+import { toDateString, formatShortMonth, getCurrentMonthRange } from '$lib/utils/date';
 import type { DashboardStats, SpendingByCategory, RecentTransaction, MonthlyTrend } from './types';
 
 export type { DashboardStats, SpendingByCategory, RecentTransaction, MonthlyTrend } from './types';
-
-function getCurrentMonthRange(): { firstDay: string; lastDay: string } {
-	const now = new Date();
-	const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-	const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-	return {
-		firstDay: toDateString(firstDayOfMonth),
-		lastDay: toDateString(lastDayOfMonth)
-	};
-}
-
-function getMonthRange(date: Date): { firstDay: string; lastDay: string } {
-	const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-	const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-
-	return {
-		firstDay: toDateString(firstDayOfMonth),
-		lastDay: toDateString(lastDayOfMonth)
-	};
-}
 
 async function getTransactionSum(
 	userId: string,

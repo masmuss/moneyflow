@@ -265,11 +265,15 @@ Some `getById` functions return `result[0]` without null check.
 
 ---
 
-### 16. Date Handling Without Timezone Consideration (PARTIAL)
+### 16. Date Handling Without Timezone Consideration (DONE)
 
-- **File**: `src/lib/features/reports/reports.server.ts`
+- **File**: `src/lib/utils/date.ts`
 
-**Note**: Created centralized `date.ts` utilities. Full timezone handling would require `date-fns-tz` or similar library.
+**Fixed**: All date utilities now use `Asia/Jakarta` (WIB, UTC+7) as default timezone:
+- `getLocalDate()` - Get current date in local timezone
+- `toDateString()` - Convert to YYYY-MM-DD with timezone
+- `getCurrentMonthRange()` / `getMonthRange()` - Month ranges with timezone
+- All formatting functions now include `timeZone` option
 
 ---
 

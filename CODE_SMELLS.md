@@ -134,7 +134,7 @@ type Props = {
 
 ---
 
-### 7. Duplicated Currency Input Handling
+### 7. Duplicated Currency Input Handling (DONE)
 
 - **Files**:
   - `src/lib/features/transactions/components/transaction-form.svelte`

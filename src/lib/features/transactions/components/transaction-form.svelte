@@ -2,8 +2,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Form from '$lib/components/ui/form';
-	import * as InputGroup from '$lib/components/ui/input-group';
 	import * as Select from '$lib/components/ui/select';
+	import { CurrencyInput } from '$lib/components/ui/currency-input';
 	import {
 		createTransactionSchema,
 		updateTransactionSchema,
@@ -16,7 +16,6 @@
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
 	import { untrack } from 'svelte';
-	import { formatIDRInput, parseIDRInput } from '$lib/utils/currency';
 	import type { Category } from '$lib/features/categories/types';
 	import type { Account } from '$lib/features/accounts/types';
 	import CategoryIcon from '$lib/features/categories/components/category-icon.svelte';
@@ -60,15 +59,6 @@
 	const filteredCategories = $derived(
 		$data.type ? categories.filter((c) => c.type === $data.type) : categories
 	);
-
-	let displayAmount = $state(formatIDRInput(untrack(() => formData.data.amount) || 0));
-
-	function handleAmountInput(e: Event) {
-		const input = e.target as HTMLInputElement;
-		const rawValue = parseIDRInput(input.value);
-		$data.amount = rawValue;
-		displayAmount = formatIDRInput(rawValue);
-	}
 
 	$effect(() => {
 		const currentType = $data.type;
@@ -184,19 +174,7 @@
 		<Form.Control>
 			{#snippet children()}
 				<Form.Label>Amount</Form.Label>
-				<InputGroup.Root>
-					<InputGroup.Addon>
-						<InputGroup.Text>Rp</InputGroup.Text>
-					</InputGroup.Addon>
-					<InputGroup.Input
-						type="text"
-						value={displayAmount}
-						oninput={handleAmountInput}
-						inputmode="numeric"
-						placeholder="0"
-					/>
-				</InputGroup.Root>
-				<input type="hidden" name="amount" value={$data.amount} />
+				<CurrencyInput bind:value={$data.amount} name="amount" />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />

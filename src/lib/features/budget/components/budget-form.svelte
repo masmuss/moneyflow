@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Select from '$lib/components/ui/select';
-	import * as InputGroup from '$lib/components/ui/input-group';
+	import { CurrencyInput } from '$lib/components/ui/currency-input';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import type { Category } from '$lib/features/categories/types';
@@ -66,21 +66,6 @@
 	$effect(() => {
 		$formStore.month = month;
 	});
-
-	// Format amount for display
-	let displayAmount = $state(
-		untrack(() => formData.data.amount) > 0
-			? untrack(() => formData.data.amount).toLocaleString('id-ID')
-			: ''
-	);
-
-	function handleAmountInput(e: Event) {
-		const input = e.target as HTMLInputElement;
-		const value = input.value.replace(/\D/g, '');
-		const numValue = parseInt(value) || 0;
-		$formStore.amount = numValue;
-		displayAmount = numValue > 0 ? numValue.toLocaleString('id-ID') : '';
-	}
 </script>
 
 <form method="POST" action="?/{mode}" use:enhance class="space-y-4">
@@ -121,19 +106,7 @@
 
 	<div class="space-y-2">
 		<Label for="amount">Budget Amount</Label>
-		<InputGroup.Root>
-			<InputGroup.Addon>
-				<InputGroup.Text>Rp</InputGroup.Text>
-			</InputGroup.Addon>
-			<InputGroup.Input
-				type="text"
-				value={displayAmount}
-				oninput={handleAmountInput}
-				inputmode="numeric"
-				placeholder="0"
-			/>
-		</InputGroup.Root>
-		<input type="hidden" name="amount" value={$formStore.amount} />
+		<CurrencyInput bind:value={$formStore.amount} name="amount" id="amount" />
 		{#if $errors.amount}
 			<p class="text-sm text-red-500">{$errors.amount}</p>
 		{/if}

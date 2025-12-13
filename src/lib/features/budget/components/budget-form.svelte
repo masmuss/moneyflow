@@ -100,7 +100,7 @@
 			</Select.Content>
 		</Select.Root>
 		{#if $errors.categoryId}
-			<p class="text-sm text-red-500">{$errors.categoryId}</p>
+			<p class="text-sm text-destructive">{$errors.categoryId}</p>
 		{/if}
 	</div>
 
@@ -108,7 +108,7 @@
 		<Label for="amount">Budget Amount</Label>
 		<CurrencyInput bind:value={$formStore.amount} name="amount" id="amount" />
 		{#if $errors.amount}
-			<p class="text-sm text-red-500">{$errors.amount}</p>
+			<p class="text-sm text-destructive">{$errors.amount}</p>
 		{/if}
 	</div>
 

@@ -1,9 +1,8 @@
 <script lang="ts">
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Button } from '$lib/components/ui/button';
-	import { MoreVertical, Pencil, Trash2, ArrowUpCircle, ArrowDownCircle } from '@lucide/svelte';
+	import { EllipsisVertical, Pencil, Trash2, CircleArrowUp, CircleArrowDown } from '@lucide/svelte';
 	import type { TransactionWithRelations } from '../types';
-	import { TRANSACTION_TYPE_LABELS } from '../schema';
 	import { formatIDR } from '$lib/utils/currency';
 	import CategoryIcon from '$lib/features/categories/components/category-icon.svelte';
 
@@ -36,12 +35,12 @@
 		<div
 			class="flex h-10 w-10 items-center justify-center rounded-full {transaction.type === 'income'
 				? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
-				: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'}"
+				: 'bg-red-100 text-destructive dark:bg-destructive/30'}"
 		>
 			{#if transaction.type === 'income'}
-				<ArrowUpCircle class="h-5 w-5" />
+				<CircleArrowUp class="h-5 w-5" />
 			{:else}
-				<ArrowDownCircle class="h-5 w-5" />
+				<CircleArrowDown class="h-5 w-5" />
 			{/if}
 		</div>
 
@@ -72,7 +71,7 @@
 		<span
 			class="font-semibold {transaction.type === 'income'
 				? 'text-green-600 dark:text-green-400'
-				: 'text-red-600 dark:text-red-400'}"
+				: 'text-destructive'}"
 		>
 			{transaction.type === 'income' ? '+' : '-'}{formattedAmount}
 		</span>
@@ -87,7 +86,7 @@
 						size="icon"
 						class="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
 					>
-						<MoreVertical class="h-4 w-4" />
+						<EllipsisVertical class="h-4 w-4" />
 						<span class="sr-only">Open menu</span>
 					</Button>
 				{/snippet}

@@ -31,7 +31,7 @@
 								class="flex h-9 w-9 items-center justify-center rounded-full {transaction.type ===
 								'income'
 									? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
-									: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'}"
+									: 'bg-red-100 text-destructive'}"
 							>
 								{#if transaction.type === 'income'}
 									<CircleChevronUp class="h-4 w-4" />
@@ -59,7 +59,7 @@
 							<span
 								class="text-sm font-medium {transaction.type === 'income'
 									? 'text-green-600 dark:text-green-400'
-									: 'text-red-600 dark:text-red-400'}"
+									: 'text-destructive'}"
 							>
 								{transaction.type === 'income' ? '+' : '-'}{formatIDR(transaction.amount)}
 							</span>

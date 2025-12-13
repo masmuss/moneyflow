@@ -31,7 +31,7 @@
 			<TrendingDown class="text-muted-foreground h-4 w-4" />
 		</Card.Header>
 		<Card.Content>
-			<div class="text-2xl font-bold text-red-600">{formatIDR(summary.totalExpense)}</div>
+			<div class="text-2xl font-bold text-destructive">{formatIDR(summary.totalExpense)}</div>
 		</Card.Content>
 	</Card.Root>
 
@@ -44,7 +44,7 @@
 			<div
 				class="text-2xl font-bold"
 				class:text-green-600={summary.netFlow >= 0}
-				class:text-red-600={summary.netFlow < 0}
+				class:text-destructive={summary.netFlow < 0}
 			>
 				{formatIDR(summary.netFlow)}
 			</div>
@@ -60,7 +60,7 @@
 			<div
 				class="text-2xl font-bold"
 				class:text-green-600={summary.savingsRate >= 0}
-				class:text-red-600={summary.savingsRate < 0}
+				class:text-destructive={summary.savingsRate < 0}
 			>
 				{summary.savingsRate}%
 			</div>

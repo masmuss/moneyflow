@@ -11,6 +11,7 @@
 	import { loginSchema, type LoginSchema } from '../schema';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
+	import { untrack } from 'svelte';
 
 	type Props = {
 		data: SuperValidated<Infer<LoginSchema>>;
@@ -20,23 +21,25 @@
 
 	let serverError = $state<string | null>(null);
 
-	const form = superForm(data, {
-		validators: zod4(loginSchema),
-		onSubmit: () => {
-			serverError = null;
-		},
-		onResult: ({ result }) => {
-			if (result.type === 'success') {
-				toast.success('Login successful!');
-				goto('/dashboard');
-			} else if (result.type === 'failure' && result.data?.error) {
-				serverError = result.data.error as string;
+	const form = untrack(() =>
+		superForm(data, {
+			validators: zod4(loginSchema),
+			onSubmit: () => {
+				serverError = null;
+			},
+			onResult: ({ result }) => {
+				if (result.type === 'success') {
+					toast.success('Login successful!');
+					goto('/dashboard');
+				} else if (result.type === 'failure' && result.data?.error) {
+					serverError = result.data.error as string;
+				}
+			},
+			onError: ({ result }) => {
+				serverError = result.error.message || 'Login failed';
 			}
-		},
-		onError: ({ result }) => {
-			serverError = result.error.message || 'Login failed';
-		}
-	});
+		})
+	);
 
 	const { form: formData, enhance, delayed } = form;
 </script>

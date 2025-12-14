@@ -17,7 +17,7 @@
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { toast } from 'svelte-sonner';
 	import { untrack } from 'svelte';
-	import CurrencyInput from '@/components/ui/currency-input/currency-input.svelte';
+	import CurrencyInput from '$lib/components/ui/currency-input/currency-input.svelte';
 
 	type CreateFormData = SuperValidated<Infer<CreateAccountSchema>>;
 	type UpdateFormData = SuperValidated<Infer<UpdateAccountSchema>>;

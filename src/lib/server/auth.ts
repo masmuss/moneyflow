@@ -18,7 +18,10 @@ export const auth = betterAuth({
 	plugins: [sveltekitCookies(getRequestEvent)],
 	emailAndPassword: {
 		enabled: true
-	}
+	},
+	trustedOrigins: [
+		"*.khoirul.site",
+	]
 });
 
 /**

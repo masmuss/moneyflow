@@ -31,8 +31,13 @@
 	}
 
 	async function handleSignOut() {
-		await authClient.signOut();
-		goto('/login');
+		await authClient.signOut({
+			fetchOptions: {
+				onSuccess: () => {
+					goto('/login');
+				}
+			}
+		});
 	}
 
 	let userInitials = $derived(getInitials(user.name));

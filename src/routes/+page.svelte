@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { authClient } from '$lib/auth-client';
 	import { Button } from '$lib/components/ui/button';
 	import { TrendingUp, Zap } from '@lucide/svelte';
+	import type { PageData } from './$types';
 
-	const session = authClient.useSession();
+	let { data }: { data: PageData } = $props();
 </script>
 
 <svelte:head>
@@ -24,7 +24,7 @@
 				</div>
 
 				<div class="flex items-center gap-4">
-					{#if $session}
+					{#if data.session}
 						<Button
 							size="sm"
 							class="bg-primary hover:bg-primary/90 text-primary-foreground"

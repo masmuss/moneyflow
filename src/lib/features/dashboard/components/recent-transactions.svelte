@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import * as Empty from '$lib/components/ui/empty';
-	import { CircleChevronUp, CircleChevronDown, Receipt } from '@lucide/svelte';
+	import { Receipt, ArrowUp, ArrowDown } from '@lucide/svelte';
 	import { formatIDR } from '$lib/utils/currency';
 	import type { RecentTransaction } from '../dashboard.server';
 	import CategoryIcon from '$lib/features/categories/components/category-icon.svelte';
@@ -28,15 +28,15 @@
 					<div class="flex items-center justify-between">
 						<div class="flex items-center gap-3">
 							<div
-								class="flex h-9 w-9 items-center justify-center rounded-full {transaction.type ===
+								class="flex h-9 w-9 items-center justify-center rounded-md {transaction.type ===
 								'income'
 									? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
 									: 'bg-destructive/30 text-destructive'}"
 							>
 								{#if transaction.type === 'income'}
-									<CircleChevronUp class="h-4 w-4" />
+									<ArrowUp class="h-4 w-4" />
 								{:else}
-									<CircleChevronDown class="h-4 w-4" />
+									<ArrowDown class="h-4 w-4" />
 								{/if}
 							</div>
 							<div class="flex flex-col">

@@ -39,7 +39,7 @@
 						<div class="flex items-center justify-between">
 							<div class="flex items-center gap-2">
 								<div
-									class="flex h-6 w-6 items-center justify-center rounded"
+									class="flex h-6 w-6 items-center justify-center rounded-md"
 									style="background-color: {category.categoryColor}20;"
 								>
 									<CategoryIcon
@@ -55,9 +55,9 @@
 								<span class="text-muted-foreground ml-2 text-xs">({percentage}%)</span>
 							</div>
 						</div>
-						<div class="bg-muted h-2 w-full overflow-hidden rounded-full">
+						<div class="bg-muted h-2 w-full overflow-hidden rounded-md">
 							<div
-								class="h-2 rounded-full transition-all duration-500"
+								class="h-2 rounded-md transition-all duration-500"
 								style="width: {percentage}%; background-color: {category.categoryColor};"
 							></div>
 						</div>

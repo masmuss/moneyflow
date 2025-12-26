@@ -43,9 +43,9 @@
 		</div>
 
 		<div class="space-y-1">
-			<div class="bg-muted h-2 w-full overflow-hidden rounded-full">
+			<div class="bg-muted h-2 w-full overflow-hidden rounded-sm">
 				<div
-					class="h-full rounded-full transition-all"
+					class="h-full rounded-sm transition-all"
 					style="width: {Math.min(summary.percentage, 100)}%; background-color: {progressColor()}"
 				></div>
 			</div>

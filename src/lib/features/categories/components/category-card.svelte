@@ -19,7 +19,7 @@
 </script>
 
 <Card.Root class="group relative transition-shadow hover:shadow-md">
-	<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+	<Card.Header class="flex flex-row items-center justify-between space-y-0">
 		<div class="flex items-center gap-3">
 			<div
 				class="flex h-10 w-10 items-center justify-center rounded-lg"
@@ -65,10 +65,4 @@
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>
 	</Card.Header>
-	<Card.Content>
-		<div class="flex items-center gap-2">
-			<div class="h-3 w-3 rounded-full" style="background-color: {category.color};"></div>
-			<span class="text-muted-foreground text-xs">{category.color}</span>
-		</div>
-	</Card.Content>
 </Card.Root>

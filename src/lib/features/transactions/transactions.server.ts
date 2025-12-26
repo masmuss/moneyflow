@@ -38,9 +38,12 @@ export async function getTransactions(
 		const now = new Date();
 		const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
 		const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-		startDate = startDate || firstDay.toISOString().slice(0, 10);
-		endDate = endDate || lastDay.toISOString().slice(0, 10);
+		startDate = firstDay.toISOString().slice(0, 10);
+		endDate = lastDay.toISOString().slice(0, 10);
 	}
+
+	conditions.push(gte(transactions.date, startDate));
+	conditions.push(lte(transactions.date, endDate));
 
 	if (filter?.accountId) {
 		conditions.push(eq(transactions.accountId, filter.accountId));
@@ -52,14 +55,6 @@ export async function getTransactions(
 
 	if (filter?.type) {
 		conditions.push(eq(transactions.type, filter.type));
-	}
-
-	if (filter?.startDate) {
-		conditions.push(gte(transactions.date, filter.startDate));
-	}
-
-	if (filter?.endDate) {
-		conditions.push(lte(transactions.date, filter.endDate));
 	}
 
 	const query = buildTransactionQuery().orderBy(

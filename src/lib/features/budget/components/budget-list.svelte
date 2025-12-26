@@ -28,7 +28,7 @@
 			<div class="mb-3 flex items-start justify-between">
 				<div class="flex items-center gap-3">
 					<div
-						class="flex h-10 w-10 items-center justify-center rounded-md"
+						class="flex h-10 w-10 items-center justify-center rounded-sm"
 						style="background-color: {budget.category.color}20"
 					>
 						<CategoryIcon name={budget.category.icon} color={budget.category.color} size={20} />
@@ -56,9 +56,9 @@
 			</div>
 
 			<div class="space-y-1">
-				<div class="bg-muted h-2 w-full overflow-hidden rounded-full">
+				<div class="bg-muted h-2 w-full overflow-hidden rounded-sm">
 					<div
-						class="h-full rounded-full transition-all"
+						class="h-full rounded-sm transition-all"
 						style="width: {Math.min(budget.percentage, 100)}%; background-color: {color}"
 					></div>
 				</div>

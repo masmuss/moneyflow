@@ -1,7 +1,15 @@
 <script lang="ts">
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Button } from '$lib/components/ui/button';
-	import { EllipsisVertical, Pencil, Trash2, CircleArrowUp, CircleArrowDown } from '@lucide/svelte';
+	import {
+		EllipsisVertical,
+		Pencil,
+		Trash2,
+		CircleArrowUp,
+		CircleArrowDown,
+		ArrowUp,
+		ArrowDown
+	} from '@lucide/svelte';
 	import type { TransactionWithRelations } from '../types';
 	import { formatIDR } from '$lib/utils/currency';
 	import CategoryIcon from '$lib/features/categories/components/category-icon.svelte';
@@ -33,14 +41,14 @@
 	<div class="flex items-center gap-4">
 		<!-- Type Icon -->
 		<div
-			class="flex h-10 w-10 items-center justify-center rounded-full {transaction.type === 'income'
+			class="flex h-10 w-10 items-center justify-center rounded-sm {transaction.type === 'income'
 				? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
 				: 'dark:bg-destructive/30 bg-destructive/10 text-destructive'}"
 		>
 			{#if transaction.type === 'income'}
-				<CircleArrowUp class="h-5 w-5" />
+				<ArrowUp class="h-5 w-5" />
 			{:else}
-				<CircleArrowDown class="h-5 w-5" />
+				<ArrowDown class="h-5 w-5" />
 			{/if}
 		</div>
 

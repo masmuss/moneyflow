@@ -129,7 +129,7 @@ export const categories = pgTable(
 		updatedAt: timestamp('updated_at').defaultNow()
 	},
 	(table) => [index('categories_user_id_idx').on(table.userId)]
-);
+).enableRLS();
 
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
 	user: one(users, {
@@ -157,7 +157,7 @@ export const accounts = pgTable(
 		updatedAt: timestamp('updated_at').defaultNow()
 	},
 	(table) => [index('accounts_user_id_idx').on(table.userId)]
-);
+).enableRLS();
 
 export const accountsRelations = relations(accounts, ({ one, many }) => ({
 	user: one(users, {
@@ -194,7 +194,7 @@ export const transactions = pgTable(
 		index('transactions_category_id_idx').on(table.categoryId),
 		index('transactions_account_id_idx').on(table.accountId)
 	]
-);
+).enableRLS();
 
 export const transactionsRelations = relations(transactions, ({ one }) => ({
 	user: one(users, {
@@ -232,7 +232,7 @@ export const budgets = pgTable(
 		index('budgets_user_month_idx').on(table.userId, table.month),
 		index('budgets_category_idx').on(table.categoryId)
 	]
-);
+).enableRLS();
 
 export const budgetsRelations = relations(budgets, ({ one }) => ({
 	user: one(users, {

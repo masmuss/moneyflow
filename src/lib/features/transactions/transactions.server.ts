@@ -32,6 +32,16 @@ export async function getTransactions(
 ): Promise<TransactionWithRelations[]> {
 	const conditions = [];
 
+	let startDate = filter?.startDate;
+	let endDate = filter?.endDate;
+	if (!startDate || !endDate) {
+		const now = new Date();
+		const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+		const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+		startDate = startDate || firstDay.toISOString().slice(0, 10);
+		endDate = endDate || lastDay.toISOString().slice(0, 10);
+	}
+
 	if (filter?.accountId) {
 		conditions.push(eq(transactions.accountId, filter.accountId));
 	}
